@@ -14,6 +14,7 @@ class Config(val context: Context) {
 
   def getConfig(property: String) = Option(config.getProperty(property)) getOrElse sys.error(s"'$property' property missing.")
 
+  val s3BaseUrl = "https://console.aws.amazon.com/s3/home?region=eu-west-1#&bucket="
   val forProcessingBucketName: String = "crossword-files-for-processing"
   val processedBucketName: String = "crossword-processed-files"
 
@@ -28,6 +29,9 @@ class Config(val context: Context) {
   val capiPreviewPassword = getConfig("capi.preview.password")
   val flexUrl = getConfig("flex.api.loadbalancer")
   val flexFindByPathEndpoint = getConfig("flex.api.findbypathendpoint")
+
+  val composerApiUrl = getConfig("composer.url")
+  val composerFindByPathEndpoint = getConfig("composer.findbypathendpoint")
 
   private def loadConfig() = {
     val configFileKey = s"$stage/config.properties"

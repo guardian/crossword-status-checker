@@ -22,7 +22,8 @@ object CrosswordStatusCheckerBuild extends Build {
         "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
         "com.google.guava" % "guava" % "18.0",
         "org.scalatest" %% "scalatest" % "2.2.5" % "test",
-        "net.databinder.dispatch" % "dispatch-core_2.11" % "0.11.3"
+        "net.databinder.dispatch" % "dispatch-core_2.11" % "0.11.3",
+        "org.json4s" % "json4s-native_2.11" % "3.4.0"
       )
     )
     .settings(basicSettings)

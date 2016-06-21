@@ -1,12 +1,23 @@
 package com.gu.crossword.crosswords
 
 import com.gu.crossword.Config
-import com.gu.crossword.crosswords.models.APIStatus
+import com.gu.crossword.crosswords.models.{ APIStatus, CrosswordApiLocations }
 import dispatch._
 
 import scala.concurrent.Future
 
 trait APIChecker {
+
+  def getApiLocations(path: String, publicOnly: Boolean = false)(config: Config): CrosswordApiLocations = {
+    val flexUrl = if (publicOnly) s"${config.composerApiUrl}${config.composerFindByPathEndpoint}" else s"${config.flexUrl}${config.flexFindByPathEndpoint}"
+    CrosswordApiLocations(
+      s"${config.crosswordMicroAppUrl}/api/$path.json?api-key=${config.crosswordMicroAppKey}",
+      s"$flexUrl/$path/preview",
+      s"$flexUrl/$path/live",
+      s"${config.capiPreviewUrl}/$path",
+      s"${config.capiUrl}/$path?api-key=${config.capiKey}"
+    )
+  }
 
   def checkIfCrosswordInApis(path: String)(config: Config): Future[APIStatus] = {
 
@@ -27,12 +38,14 @@ trait APIChecker {
     def buildRequest(reqUrl: String) = url(reqUrl)
     def buildReqBasicAuth(reqUrl: String, user: String, password: String) = url(reqUrl).as_!(user, password)
 
-    val microappStatus = check200(buildRequest(s"${config.crosswordMicroAppUrl}/api/$path.json?api-key=${config.crosswordMicroAppKey}"))
+    val apiLocations = getApiLocations(path)(config)
 
-    val flexDraftStatus = check200(buildRequest(s"${config.flexUrl}${config.flexFindByPathEndpoint}/$path/preview"))
-    val flexLiveStatus = check200(buildRequest(s"${config.flexUrl}${config.flexFindByPathEndpoint}/$path/live"))
-    val liveCapiStatus = check200(buildRequest(s"${config.capiUrl}/$path?api-key=${config.capiKey}"))
-    val previewCapiStatus = check200(buildReqBasicAuth(s"${config.capiPreviewUrl}/$path", config.capiPreviewUser, config.capiPreviewPassword))
+    val microappStatus = check200(buildRequest(apiLocations.microappUrl))
+
+    val flexDraftStatus = check200(buildRequest(apiLocations.flexDraftUrl))
+    val flexLiveStatus = check200(buildRequest(apiLocations.flexLiveUrl))
+    val liveCapiStatus = check200(buildRequest(apiLocations.capiLiveUrl))
+    val previewCapiStatus = check200(buildReqBasicAuth(apiLocations.capiPreviewUrl, config.capiPreviewUser, config.capiPreviewPassword))
 
     for {
       ms <- microappStatus

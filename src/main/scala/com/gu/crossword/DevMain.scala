@@ -10,6 +10,9 @@ object DevMain extends App {
 
   val fakeScheduledEvent = new util.HashMap[String, Object]()
 
+  fakeScheduledEvent.put("id", "21695")
+  fakeScheduledEvent.put("type", "cryptic")
+
   val start = System.nanoTime()
   new Lambda().handleRequest(fakeScheduledEvent, null)
   val end = System.nanoTime()
