@@ -1,0 +1,19 @@
+{
+  "name": "crossword-status-checker-dashboard",
+  "version": "1.0.0",
+  "description": "A page to check the status of crosswords",
+  "main": "status-check.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guardian//crossword-status-checker"
+  },
+  "author": "The Guardian",
+  "license": "ISC",
+  "dependencies": {
+    "reqwest": "2.0.5",
+    "urijs": "1.18.1"
+  }
+}

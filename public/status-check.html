@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crossword Status Checker</title>
+
+
+</head>
+<body>
+
+<h1>Crossword Status Checker</h1>
+
+
+<form action="" method="GET">
+<select id="cword-type" name="type">
+    <option value="cryptic">cryptic</option>
+    <option value="speedy"> speedy</option>
+    <option value="quick">quick</option>
+    <option value="quiptic">quiptic</option>
+    <option value="everyman">everyman</option>
+    <option value="prize">prize</option>
+</select>
+
+<input type="number" name="id" id="id-input"/>
+
+    <button type="submit">Check</button>
+</form>
+<script id="status-table" type="text/x-handlebars-template">
+<table class="table table-striped">
+    <tr>
+        <th>Location</th>
+        <th>Status</th>
+        <th>How to investigate</th>
+    </tr>
+    <tr>
+        <td>Bucket crossword-files-for-processing</td>
+        <td>{{ status.s3Status.inForProcessingBucket }}</td>
+        <td>This bucket should be empty unless there is a problem with the crossword XML file.</td>
+    </tr>
+    <tr>
+        <td>Bucket crossword-processed-files</td>
+        <td>{{ status.s3Status.inProcessedBucket }}</td>
+        <td>Crossword probably failed to upload to microapp. Check microapp logs in google developer console.</td>
+    </tr>
+    <tr>
+        <td>Crossword microapp</td>
+        <td>{{ status.apiStatus.inCrosswordMicroApp }}</td>
+        <td>Check microapp logs in google developer console</td>
+    </tr>
+    <tr>
+        <td>Flex Draft API</td>
+        <td>{{ status.apiStatus.inFlexDraftAPI }}</td>
+        <td>Check logs.gutools to see if flex ever read it. Try republishing.</td>
+    </tr>
+    <tr>
+        <td>Capi Preview</td>
+        <td>{{ status.apiStatus.inCapiPreview }}</td>
+        <td>Check that crossword in flex.</td>
+    </tr>
+    <tr>
+        <td>Capi Live</td>
+        <td>{{ status.apiStatus.inLiveCapi }}</td>
+        <td>Check that crossword page in flex has launched.</td>
+    </tr>
+</table>
+</script>
+
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+
+
+<script type="text/javascript" src="node_modules/urijs/src/URI.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<script type="text/javascript" src="node_modules/reqwest/src/reqwest.js"></script>
+<script src="https://code.jquery.com/jquery-3.0.0.min.js"
+        integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0="
+        crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+<script type="text/javascript" src="status-check.js"></script>
+</body>
+</html>
