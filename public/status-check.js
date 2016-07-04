@@ -38,8 +38,8 @@ function getCrosswordStatus(id, type) {
         data: [ { name: 'type', value: type }, { name: 'id', value: id } ]
     }, function(resp) {
         console.log(resp);
-        $('body').append(statusTableTemplate({status: resp}));
+        $('body').append(statusTableTemplate({status: resp, cwordId: id, type: type}));
     })
 }
 
-$(document).ready(loadCrosswordData())
+$(document).ready(loadCrosswordData());

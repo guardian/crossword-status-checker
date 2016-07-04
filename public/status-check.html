@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Crossword Status Checker</title>
-
+    <link rel="stylesheet" type="text/css" href="style.css"/>
 
 </head>
 <body>
 
 <h1>Crossword Status Checker</h1>
-
+<p>This app should help you determine what's gone wrong (if anything) with a crossword. Pre-publication, a crossword
+is 'ready' if it is in CAPI Preview. After publication, it should also be visible in CAPI live. If it gets lost somewhere
+along the way and doesn't make it into CAPI, the information below should be useful for troubleshooting.</p>
 
 <form action="" method="GET">
 <select id="cword-type" name="type">
@@ -25,7 +27,33 @@
 
     <button type="submit">Check</button>
 </form>
+<div class="info tables">
 <script id="status-table" type="text/x-handlebars-template">
+<h2>S3 Buckets</h2>
+These buckets are in the composer AWS account.
+<table class="table table-striped">
+    <tr>
+        <th>Bucket</th>
+        <th>Matching files found</th>
+        <th>Info</th>
+    </tr>
+    <tr>
+        <td>crossword-files-for-processing</td>
+        <td>{{#if status.s3Status.matchingKeysInForProcessingBucket }} Matching files: {{ status.s3Status.matchingKeysInForProcessingBucket }} {{else}} No matching files {{/if}}</td>
+        <td>Crossword XML and PDF files start here. Immediately after upload, the lambda will attempt to upload them
+            to the crossword microapp then create a crossword page in flex. If uploading to the microapp succeeds, the
+        XML file will be moved to crossword-files-for-processing. So if the file is found in this bucket, then it is
+        likely that the upload to the microapp has failed. In this case, check the <a href="https://console.cloud.google.com/logs/viewer?project=x-puzzle-hrd">microapp logs</a>.</td>
+    </tr>
+    <tr>
+        <td>crossword-processed-files</td>
+        <td>{{#if status.s3Status.matchingKeysInProcessedBucket }}Matching files: {{ status.s3Status.matchingKeysInProcessedBucket }} {{else}} No matching files {{/if}}</td>
+        <td>All crossword XML files should end up here. If a file is here then it indicates that it has successfully
+        been uploaded to the crossword microapp.</td>
+    </tr>
+</table>
+
+<h2>APIs</h2>
 <table class="table table-striped">
     <tr>
         <th>Location</th>
@@ -33,40 +61,56 @@
         <th>How to investigate</th>
     </tr>
     <tr>
-        <td>Bucket crossword-files-for-processing</td>
-        <td>{{ status.s3Status.inForProcessingBucket }}</td>
-        <td>This bucket should be empty unless there is a problem with the crossword XML file.</td>
+        <td><a href="http://crosswords.guardianapis.com/api/crosswords/{{type}}/{{cwordId}}.json?api-key=">Crossword microapp</a></td>
+        {{#if status.apiStatus.inCrosswordMicroApp }}
+        <td><span class="glyphicon glyphicon-ok"></span></td><td>All looks ok <span class="glyphicon glyphicon-thumbs-up"></td>
+        {{else}}
+        <td><span class="glyphicon glyphicon-remove"></span></td>
+        <td>Check <a href="https://console.cloud.google.com/logs/viewer?project=x-puzzle-hrd">microapp logs</a> in google developer console</td>
+        {{/if}}
     </tr>
     <tr>
-        <td>Bucket crossword-processed-files</td>
-        <td>{{ status.s3Status.inProcessedBucket }}</td>
-        <td>Crossword probably failed to upload to microapp. Check microapp logs in google developer console.</td>
+        <td><a href="https://composer.gutools.co.uk/find-by-path/crosswords/{{type}}/{{cwordId}}">Flex Draft API</a></td>
+        {{#if status.apiStatus.inFlexDraftAPI }}
+            <td><span class="glyphicon glyphicon-ok"></span></td><td>All looks ok <span class="glyphicon glyphicon-thumbs-up"></td>
+        {{else}}
+            <td><span class="glyphicon glyphicon-remove"></span></td>
+            <td>If a crossword is in the microapp but not in the flex API, then either the crossword-xml-uploader lambda
+            has failed to publish the crossword to the kinesis stream, or flex integration has failed to read the crossword
+            from the stream. Check <a href="https://logs.gutools.co.uk/#/discover?_g=(refreshInterval:(display:Off,pause:!f,section:0,value:0),time:(from:now-7d,mode:quick,to:now))&_a=(columns:!(_source),index:%27logstash-*%27,interval:auto,query:(query_string:(analyze_wildcard:!t,query:%27%2Bapp:integration%20%2Bstack:flexible%20%2Bmessage:crossword%27)),sort:!(%27@timestamp%27,desc))">
+            logs.gutools.co.uk</a> for any reference to the crossword. Try republishing the crossword by uploading
+            the XML file to the crossword-files-for-processing bucket.</td>
+        {{/if}}
     </tr>
     <tr>
-        <td>Crossword microapp</td>
-        <td>{{ status.apiStatus.inCrosswordMicroApp }}</td>
-        <td>Check microapp logs in google developer console</td>
+        <td><a href="https://preview.content.guardianapis.com/crosswords/{{type}}/{{cwordId}}">Capi Preview</a></td>
+        {{#if status.apiStatus.inCapiPreview }}
+        <td><span class="glyphicon glyphicon-ok"></span></td><td>All looks ok <span class="glyphicon glyphicon-thumbs-up"></td>
+        {{else}}
+        <td><span class="glyphicon glyphicon-remove"></span></td>
+        <td>If a crossword is in the flex api but not capi preview, then something has gone wrong in composer. Check that
+        composer is still talking to capi properly.</td>
+        {{/if}}
     </tr>
     <tr>
-        <td>Flex Draft API</td>
-        <td>{{ status.apiStatus.inFlexDraftAPI }}</td>
-        <td>Check logs.gutools to see if flex ever read it. Try republishing.</td>
-    </tr>
-    <tr>
-        <td>Capi Preview</td>
-        <td>{{ status.apiStatus.inCapiPreview }}</td>
-        <td>Check that crossword in flex.</td>
-    </tr>
-    <tr>
-        <td>Capi Live</td>
-        <td>{{ status.apiStatus.inLiveCapi }}</td>
-        <td>Check that crossword page in flex has launched.</td>
+        <td><a href="https://content.guardianapis.com/crosswords/{{type}}/{{cwordId}}">Capi Live</a></td>
+        {{#if status.apiStatus.inLiveCapi }}
+        <td><span class="glyphicon glyphicon-ok"></span></td><td>All looks ok <span class="glyphicon glyphicon-thumbs-up"></td>
+        {{else}}
+        <td><span class="glyphicon glyphicon-remove"></span></td>
+        <td>This might not be a problem - crosswords are only expected to be in live CAPI after the publication date.
+        If a crossword is in preview CAPI but not Live CAPI and it is after the publication date, then something has likely
+        gone wrong with the crossword's scheduled launch time in composer.</td>
+        {{/if}}
     </tr>
 </table>
+
+</div>
+<div >
+<h2>The crossword publication system</h2>
+<img class="image-of-system" src="crossword-infrastructure-diagram.png" alt="Diagram of the crossword publishing infrastructure" class="system-image">
+</div>
 </script>
-
-
-
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
 
 
