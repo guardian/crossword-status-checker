@@ -8,10 +8,10 @@ import scala.concurrent.Future
 
 trait APIChecker {
 
-  def getApiLocations(path: String, publicOnly: Boolean = false)(config: Config): CrosswordApiLocations = {
-    val flexUrl = if (publicOnly) s"${config.composerApiUrl}${config.composerFindByPathEndpoint}" else s"${config.flexUrl}${config.flexFindByPathEndpoint}"
+  def getApiLocations(path: String)(config: Config): CrosswordApiLocations = {
+    val flexUrl = s"${config.flexUrl}${config.flexFindByPathEndpoint}"
     CrosswordApiLocations(
-      s"${config.crosswordMicroAppUrl}/api/$path.json?api-key=${config.crosswordMicroAppKey}",
+      s"${config.crosswordMicroAppUrl}/api/$path.json?api-key=${config.crosswordMicroAppKey}&show-unpublished=true",
       s"$flexUrl/$path/preview",
       s"$flexUrl/$path/live",
       s"${config.capiPreviewUrl}/$path",

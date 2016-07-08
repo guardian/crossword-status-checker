@@ -31,7 +31,7 @@ class Lambda
       val apiStatus = checkIfCrosswordInApis(path)(config)
 
       import scala.language.postfixOps
-      val status = CrosswordStatus(s3Status, Await.result(apiStatus, 10 seconds), getApiLocations(path, true)(config))
+      val status = CrosswordStatus(s3Status, Await.result(apiStatus, 10 seconds))
 
       val statusJson = CrosswordStatus.toJson(status)
       println(statusJson)
