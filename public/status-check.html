@@ -27,9 +27,18 @@ along the way and doesn't make it into CAPI, the information below should be use
 
     <button type="submit">Check</button>
 </form>
-<div class="info tables">
+<div id='crossword-status-info' class="info tables">
 <script id="status-table" type="text/x-handlebars-template">
-<h2>S3 Buckets</h2>
+    <h2>
+    {{#if status.apiStatus.inLiveCapi }}
+        Crossword is <b>live</b>. <a href="http://theguardian.com/crosswords/{{type}}/{{cwordId}}">View on site</a>
+    {{else if status.apiStatus.inCapiPreview }}
+        Crossword is <b>ready to publish</b>. <a href="https://preview.gutools.co.uk/crosswords/{{type}}/{{cwordId}}">Preview</a>
+    {{else}}
+        Crossword is NOT READY - troubleshoot using the info below, or contact the Digital CMS team.
+    {{/if}}
+    </h2>
+<h3>S3 Buckets</h3>
 These buckets are in the composer AWS account.
 <table class="table table-striped">
     <tr>
@@ -53,7 +62,7 @@ These buckets are in the composer AWS account.
     </tr>
 </table>
 
-<h2>APIs</h2>
+<h3>APIs</h3>
 <table class="table table-striped">
     <tr>
         <th>Location</th>
@@ -105,12 +114,13 @@ These buckets are in the composer AWS account.
     </tr>
 </table>
 
+</script>
 </div>
-<div >
-<h2>The crossword publication system</h2>
+<div class="publication-system-image">
+    <h2>The crossword publication system</h2>
 <img class="image-of-system" src="crossword-infrastructure-diagram.png" alt="Diagram of the crossword publishing infrastructure" class="system-image">
 </div>
-</script>
+
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
 
 
