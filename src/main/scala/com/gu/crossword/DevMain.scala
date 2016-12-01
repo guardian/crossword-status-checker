@@ -10,7 +10,7 @@ object DevMain extends App {
 
   val fakeScheduledEvent = new util.HashMap[String, Object]()
 
-  fakeScheduledEvent.put("checkNext3Days", "21695")
+  //  fakeScheduledEvent.put("checkNext3Days", "")
   fakeScheduledEvent.put("type", "cryptic")
 
   val start = System.nanoTime()

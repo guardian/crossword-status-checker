@@ -37,7 +37,7 @@ class Lambda
       val statusJson = CrosswordStatus.toJson(status)
       println(statusJson)
       statusJson
-    } else if (event.containsKey("type") && event.containsKey("checkNext3Days")) {
+    } else if (event.containsKey("checkNext3Days")) {
 
       println("Checking the next 3 days for crosswords which aren't ready.")
 
