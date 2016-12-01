@@ -13,27 +13,27 @@ function checkIfCrosswordReadyToPublish(type, id) {
 var baseMondayQuick = {
     'date': new Date(2016, 8,12),
     'no': 14460
-}
+};
 
 var baseMondayCryptic = {
     'date': new Date(2016,8,5),
     'no': 26981
-}
+};
 
 var baseSundaySpeedy = {
     'date': new Date(2016,8,4),
     'no': 1093
-}
+};
 
 var baseSaturdayPrize = {
     'date': new Date(2016,8,3),
     'no': 26980
-}
+};
 
 var baseMondayQuiptic = {
     'date': new Date(2016,8,5),
     'no': 877
-}
+};
 
 function dayDiff(first, second) {
     return Math.round((second-first)/(1000*60*60*24));

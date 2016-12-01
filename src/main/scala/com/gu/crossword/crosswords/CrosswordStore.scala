@@ -1,7 +1,7 @@
 package com.gu.crossword.crosswords
 
 import com.gu.crossword.Config
-import com.gu.crossword.services.S3.s3Client
+import com.gu.crossword.services.S3.getS3Client
 
 import scala.collection.JavaConversions._
 
@@ -13,8 +13,8 @@ trait CrosswordStore {
     else None
   }
 
-  private def getMatchingCrosswordXMLKeys(id: String, crosswordType: String, bucketName: String): List[String] = {
-    val xmlFiles = s3Client.listObjects(bucketName).getObjectSummaries.toList.map(_.getKey).filter(_.contains(".xml"))
+  private def getMatchingCrosswordXMLKeys(id: String, crosswordType: String, bucketName: String)(config: Config): List[String] = {
+    val xmlFiles = config.s3Client.listObjects(bucketName).getObjectSummaries.toList.map(_.getKey).filter(_.contains(".xml"))
     val exactMatch = xmlFiles.filter(_ == s"$id.xml")
     exactMatch.length match {
       case 1 => exactMatch
@@ -34,8 +34,8 @@ trait CrosswordStore {
   }
 
   def checkCrosswordS3Status(id: String, crosswordType: String)(implicit config: Config) = {
-    val filesInForProcessing = getMatchingCrosswordXMLKeys(id, crosswordType, config.forProcessingBucketName)
-    val filesInProcessed = getMatchingCrosswordXMLKeys(id, crosswordType, config.processedBucketName)
+    val filesInForProcessing = getMatchingCrosswordXMLKeys(id, crosswordType, config.forProcessingBucketName)(config)
+    val filesInProcessed = getMatchingCrosswordXMLKeys(id, crosswordType, config.processedBucketName)(config)
     models.CrosswordS3Status(getInBucketStatus(filesInForProcessing.length), filesInForProcessing,
       getInBucketStatus(filesInProcessed.length), filesInProcessed)
   }

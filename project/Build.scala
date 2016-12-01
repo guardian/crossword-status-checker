@@ -16,8 +16,8 @@ object CrosswordStatusCheckerBuild extends Build {
 
       libraryDependencies ++= Seq(
         "com.amazonaws" % "aws-lambda-java-core" % "1.1.0",
-        "com.amazonaws" % "aws-java-sdk-s3" % "1.10.39",
-        "com.amazonaws" % "aws-java-sdk-kinesis" % "1.10.39",
+        "com.amazonaws" % "aws-java-sdk-s3" % "1.11.57",
+        "com.amazonaws" % "aws-java-sdk-sns" % "1.11.57",
         "com.squareup.okhttp" % "okhttp" % "2.5.0",
         "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
         "com.google.guava" % "guava" % "18.0",
