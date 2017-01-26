@@ -1,11 +1,12 @@
 package com.gu.crossword
 
-import org.joda.time.{ LocalDate, Period, ReadablePeriod }
-import java.util.{ Map => JMap }
+import org.joda.time.{LocalDate, Period, ReadablePeriod}
+import java.util.{Map => JMap}
 
-import com.amazonaws.services.lambda.runtime.{ Context, RequestHandler }
+import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.gu.crossword.crosswords.models.CrosswordStatus
-import com.gu.crossword.crosswords.{ APIChecker, CrosswordDateChecker, CrosswordStore }
+import com.gu.crossword.crosswords.{APIChecker, CrosswordDateChecker, CrosswordStore}
+import org.json4s.native.Json
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
@@ -53,6 +54,14 @@ class Lambda
       daysToCheck.foreach(d => CrosswordDateChecker.alertForBadCrosswords(d)(config))
 
       "checked 3 days"
+
+    } else if(event.containsKey("dateToCheck")) {
+      val dateToCheck = event.get("dateToCheck").toString
+      val d = LocalDate.parse(dateToCheck)
+
+      val dateStatus = CrosswordDateChecker.getAllCrosswordStatusesForDate(d)(config)
+      val js = Json.write()
+
 
     } else {
       "Crossword id and type or type and check query must be provided"

@@ -13,6 +13,14 @@ case class APIStatus(inCrosswordMicroApp: Boolean, inFlexDraftAPI: Boolean, inFl
 case class CrosswordApiLocations(microappUrl: String, flexDraftUrl: String, flexLiveUrl: String, capiPreviewUrl: String, capiLiveUrl: String)
 case class CrosswordStatus(s3Status: CrosswordS3Status, apiStatus: APIStatus)
 
+object APIStatus {
+  def toJson(status: APIStatus) = {
+    implicit val formats = Serialization.formats(NoTypeHints)
+    val json = write(status)
+    json
+  }
+}
+
 object CrosswordStatus {
 
   def toJson(status: CrosswordStatus) = {
