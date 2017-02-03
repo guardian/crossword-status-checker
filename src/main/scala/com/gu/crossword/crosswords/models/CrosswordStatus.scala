@@ -12,6 +12,7 @@ case class CrosswordS3Status(
 case class APIStatus(inCrosswordMicroApp: Boolean, inFlexDraftAPI: Boolean, inFlexLiveApi: Boolean, inCapiPreview: Boolean, inLiveCapi: Boolean = false)
 case class CrosswordApiLocations(microappUrl: String, flexDraftUrl: String, flexLiveUrl: String, capiPreviewUrl: String, capiLiveUrl: String)
 case class CrosswordStatus(s3Status: CrosswordS3Status, apiStatus: APIStatus)
+case class CrosswordReadyStatus(crosswordType: String, number: Int, ready: Boolean)
 
 object APIStatus {
   def toJson(status: APIStatus) = {

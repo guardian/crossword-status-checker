@@ -44,9 +44,9 @@ class Config(val context: Context) {
   val composerApiUrl = getConfig("composer.url")
   val composerFindByPathEndpoint = getConfig("composer.findbypathendpoint")
 
-  val snsClient = getSNSClient(awsCredentialsProvider)
+  val snsClient = getSNSClient(awsCredentialsProvider, "eu-west-1")
 
-  val flexLowUrgencySNSTopic = getConfig("flx.lowurgency.sns.arn")
+  val alertTopic = getConfig("sns.alert.topic")
 
   private def loadConfig() = {
     val configFileKey = s"$stage/config.properties"

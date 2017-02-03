@@ -1,15 +1,19 @@
 package com.gu.crossword
 
-import org.joda.time.{LocalDate, Period, ReadablePeriod}
-import java.util.{Map => JMap}
+import org.joda.time.{ LocalDate, Period, ReadablePeriod }
+import java.util.{ Map => JMap }
 
-import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
+import com.amazonaws.services.lambda.runtime.{ Context, RequestHandler }
 import com.gu.crossword.crosswords.models.CrosswordStatus
-import com.gu.crossword.crosswords.{APIChecker, CrosswordDateChecker, CrosswordStore}
-import org.json4s.native.Json
+import com.gu.crossword.crosswords.{ APIChecker, CrosswordDateChecker, CrosswordStore }
+import org.json4s._
+import org.json4s.JsonDSL._
+import org.json4s.native.JsonMethods._
+import org.json4s.native.Serialization.write
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
+import scala.language.postfixOps
 
 class Lambda
     extends RequestHandler[JMap[String, Object], String]
@@ -32,7 +36,6 @@ class Lambda
       val path = s"crosswords/$crosswordType/$crosswordId"
       val apiStatus = checkIfCrosswordInApis(path)(config)
 
-      import scala.language.postfixOps
       val status = CrosswordStatus(s3Status, Await.result(apiStatus, 10 seconds))
 
       val statusJson = CrosswordStatus.toJson(status)
@@ -55,14 +58,16 @@ class Lambda
 
       "checked 3 days"
 
-    } else if(event.containsKey("dateToCheck")) {
+    } else if (event.containsKey("dateToCheck")) {
       val dateToCheck = event.get("dateToCheck").toString
       val d = LocalDate.parse(dateToCheck)
 
-      val dateStatus = CrosswordDateChecker.getAllCrosswordStatusesForDate(d)(config)
-      val js = Json.write()
+      val dateStatusFt = CrosswordDateChecker.getAllCrosswordStatusesForDate(d)(config)
+      val dateStatus = Await.result(dateStatusFt, 10 seconds)
 
-
+      val jsonStatus = write(dateStatus)(DefaultFormats)
+      println(s"JSON status of crosswords for ${d.toString}: $jsonStatus")
+      jsonStatus
     } else {
       "Crossword id and type or type and check query must be provided"
     }

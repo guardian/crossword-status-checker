@@ -11,13 +11,15 @@ object CrosswordStatusCheckerBuild extends Build {
     scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked")
   )
 
+  val awsVersion = "1.11.86"
+
   val root = Project("crossword-status-checker", file("."))
     .settings(
 
       libraryDependencies ++= Seq(
         "com.amazonaws" % "aws-lambda-java-core" % "1.1.0",
-        "com.amazonaws" % "aws-java-sdk-s3" % "1.11.57",
-        "com.amazonaws" % "aws-java-sdk-sns" % "1.11.57",
+        "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
+        "com.amazonaws" % "aws-java-sdk-sns" % awsVersion,
         "com.squareup.okhttp" % "okhttp" % "2.5.0",
         "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
         "com.google.guava" % "guava" % "18.0",
