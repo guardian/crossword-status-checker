@@ -35,7 +35,7 @@ function getCrosswordStatus(id, type) {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        data: [ { name: 'type', value: type }, { name: 'id', value: id } ]
+        data: [ { name: 'type', value: type }, { name: 'id', value: id }, { name: 'api-key', value: apiKey} ]
     }, function(resp) {
         console.log(resp);
         $('#crossword-status-info').append(statusTableTemplate({status: resp, cwordId: id, type: type}));
