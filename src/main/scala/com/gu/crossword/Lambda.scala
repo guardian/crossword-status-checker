@@ -1,19 +1,19 @@
 package com.gu.crossword
 
-import org.joda.time.{ LocalDate, Period, ReadablePeriod }
+import org.joda.time.{ LocalDate }
 import java.util.{ Map => JMap }
 
 import com.amazonaws.services.lambda.runtime.{ Context, RequestHandler }
 import com.gu.crossword.crosswords.models.CrosswordStatus
-import com.gu.crossword.crosswords.{ APIChecker, CrosswordDateChecker, CrosswordStore }
+import com.gu.crossword.crosswords.{ APIChecker, CrosswordStore }
+import com.gu.crossword.crosswords.CrosswordDateChecker._
 import org.json4s._
-import org.json4s.JsonDSL._
-import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization.write
 
 import scala.concurrent.duration._
-import scala.concurrent.Await
+import scala.concurrent.{ Await, Future }
 import scala.language.postfixOps
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class Lambda
     extends RequestHandler[JMap[String, Object], String]
@@ -41,28 +41,29 @@ class Lambda
       val statusJson = CrosswordStatus.toJson(status)
       println(statusJson)
       statusJson
-    } else if (event.containsKey("checkNext3Days")) {
+    } else if (event.containsKey("checkNextNDays")) {
+      val noDaysToCheck = event.get("checkNextNDays").toString.toInt
 
-      println("Checking the next 3 days for crosswords which aren't ready.")
+      if (noDaysToCheck > 10) {
+        println(s"User requested $noDaysToCheck. Max: 10")
+        "Can check a maximum of 10 days"
+      } else {
+        val daysToCheck = generateListOfNextNDays(noDaysToCheck)
+        println(s"Checking the next $noDaysToCheck days for crosswords which aren't ready: ${daysToCheck.mkString(", ")}")
 
-      val today = new LocalDate()
-      val oneDay = Period.days(1)
-      val daysToCheck = List(
-        today.withPeriodAdded(oneDay, 1),
-        today.withPeriodAdded(oneDay, 2),
-        today.withPeriodAdded(oneDay, 3)
-      )
+        // get statuses
+        val statuses = Await.result(Future.sequence(daysToCheck.map(d => getAllCrosswordStatusesForDate(d)(config))), 10 seconds)
 
-      println(s"Checking days ${daysToCheck.mkString(", ")}")
-      daysToCheck.foreach(d => CrosswordDateChecker.alertForBadCrosswords(d)(config))
+        // alert
+        alertForBadCrosswords(statuses.flatten)(config)
 
-      "checked 3 days"
-
+        s"checked $noDaysToCheck days"
+      }
     } else if (event.containsKey("dateToCheck")) {
       val dateToCheck = event.get("dateToCheck").toString
       val d = LocalDate.parse(dateToCheck)
 
-      val dateStatusFt = CrosswordDateChecker.getAllCrosswordStatusesForDate(d)(config)
+      val dateStatusFt = getAllCrosswordStatusesForDate(d)(config)
       val dateStatus = Await.result(dateStatusFt, 10 seconds)
 
       val jsonStatus = write(dateStatus)(DefaultFormats)
@@ -71,7 +72,6 @@ class Lambda
     } else {
       "Crossword id and type or type and check query must be provided"
     }
-
   }
 
 }

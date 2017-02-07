@@ -10,7 +10,7 @@ object DevMain extends App {
 
   val fakeScheduledEvent = new util.HashMap[String, Object]()
 
-  fakeScheduledEvent.put("checkNext3Days", "")
+  fakeScheduledEvent.put("checkNextNDays", "3")
   //  fakeScheduledEvent.put("dateToCheck", "2017-02-04")
   //  fakeScheduledEvent.put("type", "cryptic")
 

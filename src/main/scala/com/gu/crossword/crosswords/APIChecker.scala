@@ -29,8 +29,11 @@ trait APIChecker {
       if (resp.getStatusCode == 200) {
         true
       } else {
-        println(s"Didn't get 200 response from ${request.url}. Actual response: ${resp.getStatusText} ${resp.getStatusCode}")
-        println(s"Response body: ${resp.getResponseBody}")
+        // we don't want to log live capi failures, as these are expected for all future crosswords and make the logging messy
+        if (!request.url.contains("guardianapis.com") || request.url.contains("preview")) {
+          println(s"Didn't get 200 response from ${request.url}. Actual response: ${resp.getStatusText} ${resp.getStatusCode}")
+          println(s"Response body: ${resp.getResponseBody}")
+        }
         false
       }
     })
