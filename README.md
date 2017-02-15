@@ -13,7 +13,8 @@ The lambda also has an endpoint which checks the next N days for crosswords whic
  to call this endpoint once a day.
  
 Example API usage:
-https://<cloudfront-url>/PROD/get-status?type=quiptic&id=896&api-key=<get from aws console>
+
+`https://<cloudfront-url>/PROD/get-status?type=quiptic&id=896&api-key=<get from aws console>`
 
 Finally, there is also a function which will check a specific date for crosswords due to be published then, and list them
 this hasn't been wired up to API gateway yet, so the best way to try it is to run the function locally or send a test
