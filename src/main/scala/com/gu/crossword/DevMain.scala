@@ -10,8 +10,9 @@ object DevMain extends App {
 
   val fakeScheduledEvent = new util.HashMap[String, Object]()
 
-  fakeScheduledEvent.put("id", "21695")
-  fakeScheduledEvent.put("type", "cryptic")
+  fakeScheduledEvent.put("checkNextNDays", "3")
+  //  fakeScheduledEvent.put("dateToCheck", "2017-02-04")
+  //  fakeScheduledEvent.put("type", "cryptic")
 
   val start = System.nanoTime()
   new Lambda().handleRequest(fakeScheduledEvent, null)
