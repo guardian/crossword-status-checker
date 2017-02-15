@@ -21,3 +21,5 @@ project/plugins/project/
 .idea/
 
 public/node_modules/
+public/api-key.js
+
