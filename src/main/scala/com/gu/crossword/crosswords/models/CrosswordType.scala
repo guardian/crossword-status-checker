@@ -19,6 +19,10 @@ case object Quiptic extends CrosswordType {
   val name = "quiptic"
   def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(877, new LocalDate(2016, 9, 5), 1)(date)
 }
+case object Weekend extends CrosswordType {
+  val name = "weekend"
+  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(328, new LocalDate(2017, 4, 15), 6)(date)
+}
 case object Prize extends CrosswordType {
   val name = "prize"
   def getNo(date: LocalDate) = {
@@ -59,7 +63,7 @@ case object Cryptic extends CrosswordType {
 }
 
 object CrosswordTypeHelpers {
-  val allTypes = List(Speedy, Quick, Cryptic, Everyman, Quiptic, Prize)
+  val allTypes = List(Speedy, Quick, Cryptic, Everyman, Quiptic, Prize, Weekend)
   def getNoForWeeklyXword(baseNo: Int, basePubDate: LocalDate, publicationDayOfWeek: Int)(date: LocalDate): Option[Int] = {
 
     if (publicationDayOfWeek != date.getDayOfWeek) None
