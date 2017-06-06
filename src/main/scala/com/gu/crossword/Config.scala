@@ -29,6 +29,8 @@ class Config(val context: Context) {
   val forProcessingBucketName: String = "crossword-files-for-processing"
   val processedBucketName: String = "crossword-processed-files"
 
+  val processedPdfBucketName: String = "crosswords-pdf-public-prod"
+
   val crosswordMicroAppUrl = getConfig("crosswordmicroapp.url")
   val crosswordMicroAppKey = getConfig("crosswordmicroapp.key")
 
