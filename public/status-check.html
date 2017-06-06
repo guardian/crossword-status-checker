@@ -47,12 +47,15 @@ These buckets are in the composer AWS account.
         <th>Matching files found</th>
         <th>Info</th>
     </tr>
+        <td colspan="3">
+            <h4>XML buckets</h4>
+        </td>
     <tr>
         <td>crossword-files-for-processing</td>
         <td>{{#if status.s3Status.matchingKeysInForProcessingBucket }} Matching files: {{ status.s3Status.matchingKeysInForProcessingBucket }} {{else}} No matching files {{/if}}</td>
-        <td>Crossword XML and PDF files start here. Immediately after upload, the lambda will attempt to upload them
+        <td>Crossword XML and PDF files start here. Immediately after upload, the lambda will attempt to upload the XML
             to the crossword microapp then create a crossword page in flex. If uploading to the microapp succeeds, the
-        XML file will be moved to crossword-files-for-processing. So if the file is found in this bucket, then it is
+        XML file will be moved to crossword-processed-files. So if the file is found in this bucket, then it is
         likely that the upload to the microapp has failed. In this case, check the <a href="https://console.cloud.google.com/logs/viewer?project=x-puzzle-hrd">microapp logs</a>.</td>
     </tr>
     <tr>
@@ -60,6 +63,23 @@ These buckets are in the composer AWS account.
         <td>{{#if status.s3Status.matchingKeysInProcessedBucket }}Matching files: {{ status.s3Status.matchingKeysInProcessedBucket }} {{else}} No matching files {{/if}}</td>
         <td>All crossword XML files should end up here. If a file is here then it indicates that it has successfully
         been uploaded to the crossword microapp.</td>
+    </tr>
+    <tr>
+        <td colspan="3">
+            <h4>PDF buckets</h4>
+        </td>
+    </tr>
+    <tr>
+        <td>crossword-files-for-processing</td>
+        <td>{{#if status.s3Status.matchingPdfKeysInProcessingBucket }}Matching files: {{ status.s3Status.matchingPdfKeysInProcessingBucket }} {{else}} No matching files {{/if}}</td>
+        <td>Crossword XML and PDF files start here. Periodically (~Every 15 minutes) the crossword-pdf-uploader
+            lambda will fetch PDFs from there (first verifying that they are not set to be published in the future), move them to a public bucket,
+            and send the public URL to the microapp. If the PDFs are still in here after the publication date, then it is likely that the lambda has failed.</td>
+    </tr>
+    <tr>
+        <td>crosswords-pdf-public-prod</td>
+        <td>{{#if status.s3Status.matchingKeysInProcessedPdfBucket }}Matching files: {{ status.s3Status.matchingKeysInProcessedPdfBucket }} {{else}} No matching files {{/if}}</td>
+        <td>PDF files are moved to here by the crossword-pdf-uploader lambda after their publication date. If a file is here, it means it is publicly available</td>
     </tr>
 </table>
 

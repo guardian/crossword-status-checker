@@ -13,13 +13,13 @@ trait CrosswordStore {
     else None
   }
 
-  private def getMatchingCrosswordXMLKeys(id: String, crosswordType: String, bucketName: String)(config: Config): List[String] = {
-    val xmlFiles = config.s3Client.listObjects(bucketName).getObjectSummaries.toList.map(_.getKey).filter(_.contains(".xml"))
-    val exactMatch = xmlFiles.filter(_ == s"$id.xml")
+  private def getMatchingCrosswordFileKeys(id: String, crosswordType: String, bucketName: String, format: String)(config: Config): List[String] = {
+    val files = config.s3Client.listObjects(bucketName).getObjectSummaries.toList.map(_.getKey).filter(_.contains(s".$format"))
+    val exactMatch = files.filter(_ == s"$id.$format")
     exactMatch.length match {
       case 1 => exactMatch
       case _ =>
-        val withMatchingId = xmlFiles.filter(_.contains(id))
+        val withMatchingId = files.filter(_.contains(id))
         if (withMatchingId.isEmpty || withMatchingId.length == 1) withMatchingId
         else filterByType(withMatchingId, crosswordType).fold(withMatchingId)(List(_))
     }
@@ -34,9 +34,11 @@ trait CrosswordStore {
   }
 
   def checkCrosswordS3Status(id: String, crosswordType: String)(implicit config: Config) = {
-    val filesInForProcessing = getMatchingCrosswordXMLKeys(id, crosswordType, config.forProcessingBucketName)(config)
-    val filesInProcessed = getMatchingCrosswordXMLKeys(id, crosswordType, config.processedBucketName)(config)
+    val filesInForProcessing = getMatchingCrosswordFileKeys(id, crosswordType, config.forProcessingBucketName, "xml")(config)
+    val filesInProcessed = getMatchingCrosswordFileKeys(id, crosswordType, config.processedBucketName, "xml")(config)
+    val pdfsInForProcessing = getMatchingCrosswordFileKeys(id, crosswordType, config.forProcessingBucketName, "pdf")(config)
+    val pdfsInProcessed = getMatchingCrosswordFileKeys(id, crosswordType, config.processedPdfBucketName, "pdf")(config)
     models.CrosswordS3Status(getInBucketStatus(filesInForProcessing.length), filesInForProcessing,
-      getInBucketStatus(filesInProcessed.length), filesInProcessed)
+      getInBucketStatus(filesInProcessed.length), filesInProcessed, getInBucketStatus(pdfsInForProcessing.length), pdfsInForProcessing, getInBucketStatus(pdfsInProcessed.length), pdfsInProcessed)
   }
 }

@@ -10,7 +10,11 @@ case class CrosswordS3Status(
   inForProcessingBucket: String,
   matchingKeysInForProcessingBucket: List[String],
   inProcessedBucket: String,
-  matchingKeysInProcessedBucket: List[String])
+  matchingKeysInProcessedBucket: List[String],
+  pdfInForProcessingBucket: String,
+  matchingPdfKeysInProcessingBucket: List[String],
+  inProcessedPdfBucket: String,
+  matchingKeysInProcessedPdfBucket: List[String])
 case class APIStatus(inCrosswordMicroApp: Boolean, inFlexDraftAPI: Boolean, inFlexLiveApi: Boolean, inCapiPreview: Boolean, inLiveCapi: Boolean = false)
 case class CrosswordApiLocations(microappUrl: String, flexDraftUrl: String, flexLiveUrl: String, capiPreviewUrl: String, capiLiveUrl: String)
 case class CrosswordStatus(s3Status: CrosswordS3Status, apiStatus: APIStatus)
