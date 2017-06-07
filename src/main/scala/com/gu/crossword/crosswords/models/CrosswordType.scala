@@ -42,9 +42,8 @@ case object Prize extends CrosswordType {
   }
 
   def getDate(no: Int) = {
-    val dayDiff = (no - baseNo)
-    val numberOfSundays = Math.floor(dayDiff / 7.0).toInt
-    val date = basePubDate.plusDays(baseNo + dayDiff - numberOfSundays)
+    val noDiff = (no - baseNo)
+    val date = basePubDate.plusWeeks(noDiff / 6)
 
     if (6 != date.getDayOfWeek) None
     else Some(date)
@@ -65,10 +64,9 @@ case object Quick extends CrosswordType {
   }
 
   def getDate(no: Int) = {
-    val dayDiff = (no - baseNo)
-    val numberOfSundays = Math.floor(dayDiff / 7.0).toInt
-    val date = basePubDate.plusDays(baseNo + dayDiff - numberOfSundays)
-
+    val noDiff = (no - baseNo)
+    val numberOfSundays = Math.floor(noDiff / 7.0).toInt
+    val date = basePubDate.plusDays(noDiff + numberOfSundays)
     if (date.getDayOfWeek == 7) None
     else Some(date)
   }
@@ -86,12 +84,13 @@ case object Cryptic extends CrosswordType {
       Some(baseNo + dayDiff - numberOfSundays)
     }
   }
-  def getDate(no: Int) = {
-    val dayDiff = (no - baseNo)
-    val numberOfSundays = Math.floor(dayDiff / 7.0).toInt
-    val date = basePubDate.plusDays(baseNo + dayDiff - numberOfSundays)
 
-    if (date.getDayOfWeek == 6 || date.getDayOfWeek == 7) None
+  def getDate(no: Int) = {
+    val noDiff = (no - baseNo)
+    val numberOfSundays = Math.floor(noDiff / 7.0).toInt
+    val date = basePubDate.plusDays(noDiff + numberOfSundays)
+
+    if (date.getDayOfWeek == 7 || date.getDayOfWeek == 7) None
     else Some(date)
   }
 }
@@ -108,8 +107,8 @@ object CrosswordTypeHelpers {
   }
 
   def getDateForWeeklyXWord(baseNo: Int, basePubDate: LocalDate, publicationDayOfWeek: Int)(no: Int): Option[LocalDate] = {
-    val weekDiff = (no - baseNo)
-    val date = basePubDate.plusWeeks(weekDiff)
+    val noDiff = (no - baseNo)
+    val date = basePubDate.plusWeeks(noDiff)
 
     if (publicationDayOfWeek != date.getDayOfWeek) None
     else Some(date)
