@@ -24,8 +24,6 @@ class Lambda
 
     implicit val config = new Config(context)
 
-    println(event)
-
     if (event.containsKey("type") && event.containsKey("id")) {
       val crosswordType = event.get("type").toString
       val crosswordId = event.get("id").toString
@@ -33,13 +31,13 @@ class Lambda
       println(s"Getting status of $crosswordType $crosswordId")
 
       val s3Status = checkCrosswordS3Status(crosswordId, crosswordType)
+
       val path = s"crosswords/$crosswordType/$crosswordId"
       val apiStatus = checkIfCrosswordInApis(path)(config)
 
       val status = CrosswordStatus(s3Status, Await.result(apiStatus, 10 seconds))
 
       val statusJson = CrosswordStatus.toJson(status)
-      println(statusJson)
       statusJson
     } else if (event.containsKey("checkNextNDays")) {
       val noDaysToCheck = event.get("checkNextNDays").toString.toInt
