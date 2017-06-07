@@ -3,6 +3,7 @@ package com.gu.crossword.crosswords
 import com.gu.crossword.Config
 import com.gu.crossword.services.S3.getS3Client
 
+import org.joda.time.{ LocalDate }
 import scala.collection.JavaConversions._
 
 trait CrosswordStore {
@@ -33,11 +34,18 @@ trait CrosswordStore {
     }
   }
 
+  def getPdfIdForCrosswordNo(id: String, crosswordType: String) = {
+    val xWordHelper = models.CrosswordTypeHelpers.getXWordType(crosswordType)
+    val xWordDate = xWordHelper.getDate(id.toInt)
+    val dateString = xWordDate.get.toString("yyyyMMdd")
+    s"$crosswordType.$dateString"
+  }
+
   def checkCrosswordS3Status(id: String, crosswordType: String)(implicit config: Config) = {
     val filesInForProcessing = getMatchingCrosswordFileKeys(id, crosswordType, config.forProcessingBucketName, "xml")(config)
     val filesInProcessed = getMatchingCrosswordFileKeys(id, crosswordType, config.processedBucketName, "xml")(config)
-    val pdfsInForProcessing = getMatchingCrosswordFileKeys(id, crosswordType, config.forProcessingBucketName, "pdf")(config)
-    val pdfsInProcessed = getMatchingCrosswordFileKeys(id, crosswordType, config.processedPdfBucketName, "pdf")(config)
+    val pdfsInForProcessing = getMatchingCrosswordFileKeys(getPdfIdForCrosswordNo(id, crosswordType), crosswordType, config.forProcessingBucketName, "pdf")(config)
+    val pdfsInProcessed = getMatchingCrosswordFileKeys(getPdfIdForCrosswordNo(id, crosswordType), crosswordType, config.processedPdfBucketName, "pdf")(config)
     models.CrosswordS3Status(getInBucketStatus(filesInForProcessing.length), filesInForProcessing,
       getInBucketStatus(filesInProcessed.length), filesInProcessed, getInBucketStatus(pdfsInForProcessing.length), pdfsInForProcessing, getInBucketStatus(pdfsInProcessed.length), pdfsInProcessed)
   }
