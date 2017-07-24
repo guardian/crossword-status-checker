@@ -33,9 +33,10 @@ function getCrosswordStatus(id, type) {
         crossOrigin: true,
         headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey
         },
-        data: [ { name: 'type', value: type }, { name: 'id', value: id }, { name: 'api-key', value: apiKey} ]
+        data: [ { name: 'type', value: type }, { name: 'id', value: id } ]
     }, function(resp) {
         console.log(resp);
         $('#crossword-status-info').append(statusTableTemplate({status: resp, cwordId: id, type: type}));
