@@ -10,7 +10,7 @@ class CrosswordTypeTest extends FunSuite {
     assert(Speedy.getNo(new LocalDate(2016, 11, 6)) === Some(1102))
     assert(Speedy.getNo(new LocalDate(2016, 11, 4)) === None)
     assert(Quiptic.getNo(new LocalDate(2016, 11, 7)) === Some(886))
-    assert(Everyman.getNo(new LocalDate(2016, 11, 6)) === Some(3657))
+    assert(Everyman.getNo(new LocalDate(2017, 10, 15)) === Some(3705))
     assert(Prize.getNo(new LocalDate(2016, 11, 19)) === Some(27046))
     assert(Prize.getNo(new LocalDate(2016, 11, 18)) === None)
   }
