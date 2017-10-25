@@ -15,8 +15,8 @@ case object Speedy extends CrosswordType {
 }
 case object Everyman extends CrosswordType {
   val name = "everyman"
-  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(3657, new LocalDate(2016, 11, 6), 7)(date)
-  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(3657, new LocalDate(2016, 11, 6), 7)(no)
+  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(3706, new LocalDate(2017, 10, 22), 7)(date)
+  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(3706, new LocalDate(2017, 10, 22), 7)(no)
 }
 case object Quiptic extends CrosswordType {
   val name = "quiptic"
