@@ -10,28 +10,36 @@ sealed trait CrosswordType extends Product with Serializable {
 
 case object Speedy extends CrosswordType {
   val name = "speedy"
-  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(1093, new LocalDate(2016, 9, 4), 7)(date)
-  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(1093, new LocalDate(2016, 9, 4), 7)(no)
+  val baseNo = 1153
+  val basePubDate = new LocalDate(2017, 11, 5)
+  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(baseNo, basePubDate, 7)(date)
+  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(baseNo, basePubDate, 7)(no)
 }
 case object Everyman extends CrosswordType {
   val name = "everyman"
-  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(3706, new LocalDate(2017, 10, 22), 7)(date)
-  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(3706, new LocalDate(2017, 10, 22), 7)(no)
+  val baseNo = 3708
+  val basePubDate = new LocalDate(2017, 11, 5)
+  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(baseNo, basePubDate, 7)(date)
+  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(baseNo, basePubDate, 7)(no)
 }
 case object Quiptic extends CrosswordType {
   val name = "quiptic"
-  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(877, new LocalDate(2016, 9, 5), 1)(date)
-  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(877, new LocalDate(2016, 9, 5), 1)(no)
+  val baseNo = 938
+  val basePubDate = new LocalDate(2017, 11, 6)
+  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(baseNo, basePubDate, 1)(date)
+  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(baseNo, basePubDate, 1)(no)
 }
 case object Weekend extends CrosswordType {
   val name = "weekend"
-  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(328, new LocalDate(2017, 4, 15), 6)(date)
-  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(328, new LocalDate(2017, 4, 15), 6)(no)
+  val baseNo = 357
+  val basePubDate = new LocalDate(2017, 11, 4)
+  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(baseNo, basePubDate, 6)(date)
+  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(baseNo, basePubDate, 6)(no)
 }
 case object Prize extends CrosswordType {
   val name = "prize"
-  val basePubDate = new LocalDate(2016, 11, 12)
-  val baseNo = 27040
+  val basePubDate = new LocalDate(2017, 10, 28)
+  val baseNo = 27340
 
   def getNo(date: LocalDate) = {
     if (6 != date.getDayOfWeek) None
@@ -42,18 +50,18 @@ case object Prize extends CrosswordType {
   }
 
   def getDate(no: Int) = {
-    val dayDiff = (no - baseNo)
-    val numberOfSundays = Math.floor(dayDiff / 7.0).toInt
-    val date = basePubDate.plusDays(baseNo + dayDiff - numberOfSundays)
-
+    val dayDiff = no - baseNo
+//    Divide by 6 as crossword number is only incremented 6 days a week
+    val numberOfSundays = Math.floor(dayDiff / 6.0).toInt
+    val date = basePubDate.plusDays(dayDiff + numberOfSundays)
     if (6 != date.getDayOfWeek) None
     else Some(date)
   }
 }
 case object Quick extends CrosswordType {
   val name = "quick"
-  val baseNo = 14460
-  val basePubDate = new LocalDate(2016, 9, 12)
+  val baseNo = 14820
+  val basePubDate = new LocalDate(2017, 11, 6)
 
   def getNo(date: LocalDate) = {
     if (date.getDayOfWeek == 7) None
@@ -65,18 +73,18 @@ case object Quick extends CrosswordType {
   }
 
   def getDate(no: Int) = {
-    val dayDiff = (no - baseNo)
-    val numberOfSundays = Math.floor(dayDiff / 7.0).toInt
-    val date = basePubDate.plusDays(baseNo + dayDiff - numberOfSundays)
-
+    val dayDiff = no - baseNo
+//    Divide by 6 as crossword number is only incremented 6 days a week
+    val numberOfSundays = Math.floor(dayDiff / 6.0).toInt
+    val date = basePubDate.plusDays(dayDiff + numberOfSundays)
     if (date.getDayOfWeek == 7) None
     else Some(date)
   }
 }
 case object Cryptic extends CrosswordType {
   val name = "cryptic"
-  val baseNo = 26981
-  val basePubDate = new LocalDate(2016, 9, 5)
+  val baseNo = 27347
+  val basePubDate = new LocalDate(2017, 11, 6)
 
   def getNo(date: LocalDate) = {
     if (date.getDayOfWeek == 6 || date.getDayOfWeek == 7) None
@@ -87,9 +95,10 @@ case object Cryptic extends CrosswordType {
     }
   }
   def getDate(no: Int) = {
-    val dayDiff = (no - baseNo)
-    val numberOfSundays = Math.floor(dayDiff / 7.0).toInt
-    val date = basePubDate.plusDays(baseNo + dayDiff - numberOfSundays)
+    val dayDiff = no - baseNo
+//    Divide by 6 as crossword number is only incremented 6 days a week
+    val numberOfSundays = Math.floor(dayDiff / 6.0).toInt
+    val date = basePubDate.plusDays(dayDiff + numberOfSundays)
 
     if (date.getDayOfWeek == 6 || date.getDayOfWeek == 7) None
     else Some(date)
@@ -108,7 +117,7 @@ object CrosswordTypeHelpers {
   }
 
   def getDateForWeeklyXWord(baseNo: Int, basePubDate: LocalDate, publicationDayOfWeek: Int)(no: Int): Option[LocalDate] = {
-    val weekDiff = (no - baseNo)
+    val weekDiff = no - baseNo
     val date = basePubDate.plusWeeks(weekDiff)
 
     if (publicationDayOfWeek != date.getDayOfWeek) None
