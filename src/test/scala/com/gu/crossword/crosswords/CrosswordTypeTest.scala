@@ -25,4 +25,19 @@ class CrosswordTypeTest extends FunSuite {
     assert(Cryptic.getNo(new LocalDate(2016, 12, 4)) === None)
   }
 
+  test("testGetDateForWeeklyXword") {
+    assert(Speedy.getDate(1102).toString === "Some(2016-11-06)")
+    assert(Quiptic.getDate(886).toString === "Some(2016-11-07)")
+    assert(Everyman.getDate(3657).toString === "Some(2016-11-06)")
+    assert(Prize.getDate(27046).toString === "Some(2016-11-19)")
+  }
+
+  test("test getDateForQuickXword") {
+    assert(Quick.getDate(14461).toString === "Some(2016-09-13)")
+  }
+
+  test("test getDateForCrypticXword") {
+    assert(Cryptic.getDate(26981).toString === "Some(2016-09-05)")
+  }
+
 }
