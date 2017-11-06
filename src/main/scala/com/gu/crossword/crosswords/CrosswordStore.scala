@@ -14,16 +14,19 @@ trait CrosswordStore {
     else None
   }
 
-  private def getMatchingCrosswordFileKeys(id: String, crosswordType: String, bucketName: String, format: String)(config: Config): List[String] = {
+  private def getMatchingCrosswordFileKeys(id: Option[String], crosswordType: String, bucketName: String, format: String)(config: Config): List[String] = {
     val files = config.s3Client.listObjects(bucketName).getObjectSummaries.toList.map(_.getKey).filter(_.contains(s".$format"))
-    val exactMatch = files.filter(_ == s"$id.$format")
-    exactMatch.length match {
-      case 1 => exactMatch
-      case _ =>
-        val withMatchingId = files.filter(_.contains(id))
-        if (withMatchingId.isEmpty || withMatchingId.length == 1) withMatchingId
-        else filterByType(withMatchingId, crosswordType).fold(withMatchingId)(List(_))
-    }
+    if (id.isDefined) {
+      val exactMatch = files.filter(_ == s"${id.get}.$format")
+      exactMatch.length match {
+        case 1 => exactMatch
+        case _ =>
+          val withMatchingId = files.filter(_.contains(id))
+          if (withMatchingId.isEmpty || withMatchingId.length == 1) withMatchingId
+          else filterByType(withMatchingId, crosswordType).fold(withMatchingId)(List(_))
+      }
+    } else List.empty
+
   }
 
   private def getInBucketStatus(numMatchingKeys: Int) = {
@@ -34,18 +37,18 @@ trait CrosswordStore {
     }
   }
 
-  def getPdfIdForCrosswordNo(id: String, crosswordType: String) = {
+  def getPdfIdForCrosswordNo(id: String, crosswordType: String): Option[String] = {
     val xWordHelper = models.CrosswordTypeHelpers.getXWordType(crosswordType)
     val xWordDate = xWordHelper.getDate(id.toInt)
-    val dateString = xWordDate.get.toString("yyyyMMdd")
-    s"$crosswordType.$dateString"
+    xWordDate.map(date => s"$crosswordType.${date.toString("yyyyMMdd")}")
   }
 
   def checkCrosswordS3Status(id: String, crosswordType: String)(implicit config: Config) = {
-    val filesInForProcessing = getMatchingCrosswordFileKeys(id, crosswordType, config.forProcessingBucketName, "xml")(config)
-    val filesInProcessed = getMatchingCrosswordFileKeys(id, crosswordType, config.processedBucketName, "xml")(config)
+    val filesInForProcessing = getMatchingCrosswordFileKeys(Some(id), crosswordType, config.forProcessingBucketName, "xml")(config)
+    val filesInProcessed = getMatchingCrosswordFileKeys(Some(id), crosswordType, config.processedBucketName, "xml")(config)
     val pdfsInForProcessing = getMatchingCrosswordFileKeys(getPdfIdForCrosswordNo(id, crosswordType), crosswordType, config.forProcessingBucketName, "pdf")(config)
     val pdfsInProcessed = getMatchingCrosswordFileKeys(getPdfIdForCrosswordNo(id, crosswordType), crosswordType, config.processedPdfBucketName, "pdf")(config)
+
     models.CrosswordS3Status(getInBucketStatus(filesInForProcessing.length), filesInForProcessing,
       getInBucketStatus(filesInProcessed.length), filesInProcessed, getInBucketStatus(pdfsInForProcessing.length), pdfsInForProcessing, getInBucketStatus(pdfsInProcessed.length), pdfsInProcessed)
   }
