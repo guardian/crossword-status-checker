@@ -2,8 +2,14 @@ package com.gu.crossword.crosswords.models
 
 import org.joda.time.{ Days, LocalDate, Weeks }
 
+import scala.annotation.tailrec
+
 sealed trait CrosswordType extends Product with Serializable {
   def name: String
+
+  def baseNo: Int
+  def basePubDate: LocalDate
+
   def getNo(date: LocalDate): Option[Int]
   def getDate(no: Int): Option[LocalDate]
 }
@@ -36,26 +42,13 @@ case object Weekend extends CrosswordType {
   def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(baseNo, basePubDate, 6)(date)
   def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(baseNo, basePubDate, 6)(no)
 }
-case object Prize extends CrosswordType {
+case object Prize extends SearchBasedCrosswordType {
   val name = "prize"
   val basePubDate = new LocalDate(2017, 10, 28)
   val baseNo = 27340
 
-  def getNo(date: LocalDate) = {
-    if (6 != date.getDayOfWeek) None
-    else {
-      val weekDiff = Weeks.weeksBetween(basePubDate, date).getWeeks
-      Some(baseNo + weekDiff * 6)
-    }
-  }
-
-  def getDate(no: Int) = {
-    val dayDiff = no - baseNo
-//    Divide by 6 as crossword number is only incremented 6 days a week
-    val numberOfSundays = Math.floor(dayDiff / 6.0).toInt
-    val date = basePubDate.plusDays(dayDiff + numberOfSundays)
-    if (6 != date.getDayOfWeek) None
-    else Some(date)
+  final override def validate(date: LocalDate): Boolean = {
+    date.getDayOfWeek == 6
   }
 }
 case object Quick extends CrosswordType {
@@ -74,34 +67,63 @@ case object Quick extends CrosswordType {
 
   def getDate(no: Int) = {
     val dayDiff = no - baseNo
-//    Divide by 6 as crossword number is only incremented 6 days a week
+    //    Divide by 6 as crossword number is only incremented 6 days a week
     val numberOfSundays = Math.floor(dayDiff / 6.0).toInt
     val date = basePubDate.plusDays(dayDiff + numberOfSundays)
     if (date.getDayOfWeek == 7) None
     else Some(date)
   }
 }
-case object Cryptic extends CrosswordType {
+case object Cryptic extends SearchBasedCrosswordType {
   val name = "cryptic"
   val baseNo = 27347
   val basePubDate = new LocalDate(2017, 11, 6)
 
-  def getNo(date: LocalDate) = {
-    if (date.getDayOfWeek == 6 || date.getDayOfWeek == 7) None
-    else {
-      val dayDiff = Days.daysBetween(basePubDate, date).getDays
-      val numberOfSundays = Math.floor(dayDiff / 7.0).toInt
-      Some(baseNo + dayDiff - numberOfSundays)
+  override def validate(date: LocalDate): Boolean = {
+    date.getDayOfWeek != 6
+  }
+}
+
+trait SearchBasedCrosswordType extends CrosswordType {
+  def validate(date: LocalDate): Boolean
+
+  final def getNo(date: LocalDate): Option[Int] = {
+    if (validate(date)) {
+      search(Right(date), baseNo, basePubDate).map { case (no, _) => no }
+    } else {
+      None
     }
   }
-  def getDate(no: Int) = {
-    val dayDiff = no - baseNo
-//    Divide by 6 as crossword number is only incremented 6 days a week
-    val numberOfSundays = Math.floor(dayDiff / 6.0).toInt
-    val date = basePubDate.plusDays(dayDiff + numberOfSundays)
 
-    if (date.getDayOfWeek == 6 || date.getDayOfWeek == 7) None
-    else Some(date)
+  final def getDate(no: Int): Option[LocalDate] = {
+    search(Left(no), baseNo, basePubDate).collect {
+      case (_, date) if validate(date) => date
+    }
+  }
+
+  @tailrec
+  private def search(target: Either[Int, LocalDate], number: Int, date: LocalDate): Option[(Int, LocalDate)] = {
+    val isSunday = date.getDayOfWeek == 7
+    val isChristmas = date.getDayOfMonth == 25 && date.getMonthOfYear == 12
+
+    target match {
+      case Left(t) if number > t =>
+        None
+
+      case Right(t) if date.compareTo(t) > 0 =>
+        None
+
+      case _ =>
+        val hitTarget = target == Left(number) || target == Right(date)
+
+        if (hitTarget && !isSunday && !isChristmas) {
+          Some((number, date))
+        } else if (isSunday || isChristmas) {
+          search(target, number, date.plusDays(1))
+        } else {
+          search(target, number + 1, date.plusDays(1))
+        }
+    }
   }
 }
 
