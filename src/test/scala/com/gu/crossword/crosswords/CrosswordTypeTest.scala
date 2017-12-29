@@ -2,7 +2,7 @@ package com.gu.crossword.crosswords
 
 import com.gu.crossword.crosswords.models._
 import org.joda.time.LocalDate
-import org.scalatest.{FunSuite, MustMatchers}
+import org.scalatest.{ FunSuite, MustMatchers }
 
 class CrosswordTypeTest extends FunSuite with MustMatchers {
   test("test getNoForWeeklyXword") {

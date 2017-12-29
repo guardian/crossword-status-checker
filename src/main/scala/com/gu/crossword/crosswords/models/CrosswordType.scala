@@ -1,6 +1,6 @@
 package com.gu.crossword.crosswords.models
 
-import org.joda.time.{Days, LocalDate, Weeks}
+import org.joda.time.{ Days, LocalDate, Weeks }
 
 import scala.annotation.tailrec
 
@@ -67,7 +67,7 @@ case object Quick extends CrosswordType {
 
   def getDate(no: Int) = {
     val dayDiff = no - baseNo
-//    Divide by 6 as crossword number is only incremented 6 days a week
+    //    Divide by 6 as crossword number is only incremented 6 days a week
     val numberOfSundays = Math.floor(dayDiff / 6.0).toInt
     val date = basePubDate.plusDays(dayDiff + numberOfSundays)
     if (date.getDayOfWeek == 7) None
@@ -87,14 +87,16 @@ case object Cryptic extends SearchBasedCrosswordType {
 trait SearchBasedCrosswordType extends CrosswordType {
   def validate(date: LocalDate): Boolean
 
-  final def getNo(target: LocalDate): Option[Int] = {
-    search(Right(target), baseNo, basePubDate).collect {
-      case (number, date) if validate(date) => number
+  final def getNo(date: LocalDate): Option[Int] = {
+    if (validate(date)) {
+      search(Right(date), baseNo, basePubDate).map { case (no, _) => no }
+    } else {
+      None
     }
   }
 
-  final def getDate(target: Int): Option[LocalDate] = {
-    search(Left(target), baseNo, basePubDate).collect {
+  final def getDate(no: Int): Option[LocalDate] = {
+    search(Left(no), baseNo, basePubDate).collect {
       case (_, date) if validate(date) => date
     }
   }
@@ -114,7 +116,7 @@ trait SearchBasedCrosswordType extends CrosswordType {
       case _ =>
         val hitTarget = target == Left(number) || target == Right(date)
 
-        if (hitTarget  && !isSunday && !isChristmas) {
+        if (hitTarget && !isSunday && !isChristmas) {
           Some((number, date))
         } else if (isSunday || isChristmas) {
           search(target, number, date.plusDays(1))
