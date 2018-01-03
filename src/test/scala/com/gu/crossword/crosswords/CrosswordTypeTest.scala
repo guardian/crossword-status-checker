@@ -18,8 +18,8 @@ class CrosswordTypeTest extends FunSuite with MustMatchers {
   }
 
   test("test getNoForQuickXword") {
-    assert(Quick.getNo(new LocalDate(2016, 11, 5)) === Some(14507))
-    assert(Quick.getNo(new LocalDate(2016, 11, 6)) === None)
+    assert(Quick.getNo(new LocalDate(2017, 11, 8)) === Some(14822))
+    assert(Quick.getNo(new LocalDate(2017, 11, 12)) === None)
   }
 
   test("test getNoForCrypticXword") {
@@ -28,7 +28,7 @@ class CrosswordTypeTest extends FunSuite with MustMatchers {
   }
 
   test("test getDateForQuickXword") {
-    assert(Quick.getDate(14803) === Some(new LocalDate(2017, 10, 17)))
+    assert(Quick.getDate(14826) === Some(new LocalDate(2017, 11, 13)))
   }
 
   test("test getDateForCrypticXword") {
@@ -92,6 +92,11 @@ class CrosswordTypeTest extends FunSuite with MustMatchers {
     // Saturday (Prize)
     Prize.getDate(27393) must contain(new LocalDate(2017, 12, 30))
     Cryptic.getDate(27393) mustBe empty
+  }
+
+  test("Quick 2018-01-06") {
+    Quick.getDate(14872) must contain(new LocalDate(2018, 1, 6))
+    Quick.getNo(new LocalDate(2018, 1, 6)) must contain(14872)
   }
 
   test("test base case") {

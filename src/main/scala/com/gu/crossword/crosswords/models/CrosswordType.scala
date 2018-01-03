@@ -42,49 +42,35 @@ case object Weekend extends CrosswordType {
   def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(baseNo, basePubDate, 6)(date)
   def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(baseNo, basePubDate, 6)(no)
 }
-case object Prize extends SearchBasedCrosswordType {
+case object Prize extends EveryDayExceptSundayCrossword {
   val name = "prize"
   val basePubDate = new LocalDate(2017, 10, 28)
   val baseNo = 27340
 
   final override def validate(date: LocalDate): Boolean = {
-    date.getDayOfWeek == 6
+    date.getDayOfWeek == 6 // only saturdays
   }
 }
-case object Quick extends CrosswordType {
+case object Quick extends EveryDayExceptSundayCrossword {
   val name = "quick"
   val baseNo = 14820
   val basePubDate = new LocalDate(2017, 11, 6)
 
-  def getNo(date: LocalDate) = {
-    if (date.getDayOfWeek == 7) None
-    else {
-      val dayDiff = Days.daysBetween(basePubDate, date).getDays
-      val numberOfSundays = Math.floor(dayDiff / 7.0).toInt
-      Some(baseNo + dayDiff - numberOfSundays)
-    }
-  }
-
-  def getDate(no: Int) = {
-    val dayDiff = no - baseNo
-    //    Divide by 6 as crossword number is only incremented 6 days a week
-    val numberOfSundays = Math.floor(dayDiff / 6.0).toInt
-    val date = basePubDate.plusDays(dayDiff + numberOfSundays)
-    if (date.getDayOfWeek == 7) None
-    else Some(date)
+  override def validate(date: LocalDate): Boolean = {
+    date.getDayOfWeek != 7 // not sundays
   }
 }
-case object Cryptic extends SearchBasedCrosswordType {
+case object Cryptic extends EveryDayExceptSundayCrossword {
   val name = "cryptic"
   val baseNo = 27347
   val basePubDate = new LocalDate(2017, 11, 6)
 
   override def validate(date: LocalDate): Boolean = {
-    date.getDayOfWeek != 6
+    date.getDayOfWeek < 6 // every weekday
   }
 }
 
-trait SearchBasedCrosswordType extends CrosswordType {
+trait EveryDayExceptSundayCrossword extends CrosswordType {
   def validate(date: LocalDate): Boolean
 
   final def getNo(date: LocalDate): Option[Int] = {
