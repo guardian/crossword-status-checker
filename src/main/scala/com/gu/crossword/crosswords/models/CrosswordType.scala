@@ -57,7 +57,7 @@ case object Quick extends EveryDayExceptSundayCrossword {
   val basePubDate = new LocalDate(2017, 11, 6)
 
   override def validate(date: LocalDate): Boolean = {
-    true // every day except sunday
+    date.getDayOfWeek != 7 // not sundays
   }
 }
 case object Cryptic extends EveryDayExceptSundayCrossword {
@@ -66,7 +66,7 @@ case object Cryptic extends EveryDayExceptSundayCrossword {
   val basePubDate = new LocalDate(2017, 11, 6)
 
   override def validate(date: LocalDate): Boolean = {
-    date.getDayOfWeek != 6 // every weekday
+    date.getDayOfWeek < 6 // every weekday
   }
 }
 
