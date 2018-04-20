@@ -1,5 +1,8 @@
 package com.gu.crossword.crosswords
 
+import java.net.URI
+
+import com.gu.contentapi.client.IAMSigner
 import com.gu.crossword.Config
 import com.gu.crossword.crosswords.models.{ APIStatus, CrosswordApiLocations }
 import dispatch._
@@ -39,7 +42,9 @@ trait APIChecker {
     })
 
     def buildRequest(reqUrl: String) = url(reqUrl)
-    def buildReqBasicAuth(reqUrl: String, user: String, password: String) = url(reqUrl).as_!(user, password)
+    def buildReqWithAuth(reqUrl: String, signer: IAMSigner) = url(reqUrl).setHeaders {
+      signer.addIAMHeaders(headers = Map.empty, uri = new URI(reqUrl)).mapValues(List(_))
+    }
 
     val apiLocations = getApiLocations(path)(config)
 
@@ -48,7 +53,7 @@ trait APIChecker {
     val flexDraftStatus = check200(buildRequest(apiLocations.flexDraftUrl))
     val flexLiveStatus = check200(buildRequest(apiLocations.flexLiveUrl))
     val liveCapiStatus = check200(buildRequest(apiLocations.capiLiveUrl))
-    val previewCapiStatus = check200(buildReqBasicAuth(apiLocations.capiPreviewUrl, config.capiPreviewUser, config.capiPreviewPassword))
+    val previewCapiStatus = check200(buildReqWithAuth(apiLocations.capiPreviewUrl, config.signer))
 
     for {
       ms <- microappStatus
