@@ -21,12 +21,11 @@ object CrosswordStatusCheckerBuild extends Build {
         "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
         "com.amazonaws" % "aws-java-sdk-sns" % awsVersion,
         "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
-        "com.squareup.okhttp" % "okhttp" % "2.5.0",
+        "com.squareup.okhttp3" % "okhttp" % "3.9.0",
         "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
         "com.google.guava" % "guava" % "18.0",
         "com.gu" %% "content-api-client-aws" % "0.5",
         "org.scalatest" %% "scalatest" % "2.2.5" % "test",
-        "net.databinder.dispatch" % "dispatch-core_2.11" % "0.11.3",
         "org.json4s" % "json4s-native_2.11" % "3.4.0"
       )
     )
