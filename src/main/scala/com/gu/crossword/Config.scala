@@ -2,10 +2,11 @@ package com.gu.crossword
 
 import java.util.Properties
 
-import com.amazonaws.auth.{ AWSCredentialsProviderChain, DefaultAWSCredentialsProviderChain }
+import com.amazonaws.auth.{ AWSCredentialsProvider, AWSCredentialsProviderChain, DefaultAWSCredentialsProviderChain, STSAssumeRoleSessionCredentialsProvider }
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.regions.{ Region, Regions }
 import com.amazonaws.services.lambda.runtime.Context
+import com.gu.contentapi.client.IAMSigner
 import com.gu.crossword.services.S3.getS3Client
 import com.gu.crossword.services.SNS.getSNSClient
 
@@ -31,22 +32,36 @@ class Config(val context: Context) {
 
   val processedPdfBucketName: String = "crosswords-pdf-public-prod"
 
+  val awsRegion: String = "eu-west-1"
+
   val crosswordMicroAppUrl = getConfig("crosswordmicroapp.url")
   val crosswordMicroAppKey = getConfig("crosswordmicroapp.key")
 
   val capiUrl = getConfig("capi.live.url")
   val capiKey = getConfig("capi.key")
 
-  val capiPreviewUrl = getConfig("capi.preview.url")
-  val capiPreviewUser = getConfig("capi.preview.user")
-  val capiPreviewPassword = getConfig("capi.preview.password")
+  val capiPreviewUrl = getConfig("capi.preview.iam-url")
+
+  val signer = {
+    val capiPreviewRole = getConfig("capi.preview.role")
+
+    val capiPreviewCredentials: AWSCredentialsProvider = {
+      new AWSCredentialsProviderChain(
+        new ProfileCredentialsProvider("capi"),
+        new STSAssumeRoleSessionCredentialsProvider.Builder(capiPreviewRole, "capi").build()
+      )
+    }
+
+    new IAMSigner(capiPreviewCredentials, awsRegion)
+  }
+
   val flexUrl = getConfig("flex.api.loadbalancer")
   val flexFindByPathEndpoint = getConfig("flex.api.findbypathendpoint")
 
   val composerApiUrl = getConfig("composer.url")
   val composerFindByPathEndpoint = getConfig("composer.findbypathendpoint")
 
-  val snsClient = getSNSClient(awsCredentialsProvider, "eu-west-1")
+  val snsClient = getSNSClient(awsCredentialsProvider, awsRegion)
 
   val alertTopic = getConfig("sns.alert.topic")
 
