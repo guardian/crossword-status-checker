@@ -41,14 +41,19 @@ class Config(val context: Context) {
   val capiKey = getConfig("capi.key")
 
   val capiPreviewUrl = getConfig("capi.preview.iam-url")
-  val capiPreviewRole = getConfig("capi.preview.role")
-  val capiPreviewCredentials: AWSCredentialsProvider = {
-    new AWSCredentialsProviderChain(
-      new ProfileCredentialsProvider("capi"),
-      new STSAssumeRoleSessionCredentialsProvider.Builder(capiPreviewRole, "capi").build()
-    )
+
+  val signer = {
+    val capiPreviewRole = getConfig("capi.preview.role")
+
+    val capiPreviewCredentials: AWSCredentialsProvider = {
+      new AWSCredentialsProviderChain(
+        new ProfileCredentialsProvider("capi"),
+        new STSAssumeRoleSessionCredentialsProvider.Builder(capiPreviewRole, "capi").build()
+      )
+    }
+
+    new IAMSigner(capiPreviewCredentials, awsRegion)
   }
-  val signer = new IAMSigner(capiPreviewCredentials, awsRegion)
 
   val flexUrl = getConfig("flex.api.loadbalancer")
   val flexFindByPathEndpoint = getConfig("flex.api.findbypathendpoint")
