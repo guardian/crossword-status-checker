@@ -3,7 +3,7 @@ package com.gu.crossword.crosswords
 import com.gu.crossword.Config
 import com.gu.crossword.services.S3.getS3Client
 
-import org.joda.time.{ LocalDate }
+import org.joda.time.{LocalDate}
 import scala.collection.JavaConversions._
 
 trait CrosswordStore {
@@ -16,7 +16,10 @@ trait CrosswordStore {
 
   private def getMatchingCrosswordFileKeys(id: Option[String], crosswordType: String, bucketName: String, format: String)(config: Config): List[String] = {
     if (id.isDefined) {
-      val files = config.s3Client.listObjects(bucketName, s"${id.get}.$format").getObjectSummaries.toList.map(_.getKey)
+      val files = config.s3Client.listObjects(bucketName, s"${id.get}.$format")
+        .getObjectSummaries
+        .toList
+        .map(_.getKey)
       val exactMatch = files.filter(_ == s"${id.get}.$format")
       exactMatch.length match {
         case 1 => exactMatch
