@@ -19,4 +19,5 @@ jar_file=$(echo $my_dir/target/scala-2.11/crossword-status-checker-assembly*.jar
 aws lambda update-function-code \
   --function-name crosswords-status-checker-scheduling-$STAGE \
   --zip-file fileb://$jar_file \
-  --profile $PROFILE
+  --profile $PROFILE \
+  --region eu-west-1
