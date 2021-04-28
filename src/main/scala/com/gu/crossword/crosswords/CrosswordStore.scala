@@ -3,7 +3,7 @@ package com.gu.crossword.crosswords
 import com.gu.crossword.Config
 import com.gu.crossword.services.S3.getS3Client
 
-import org.joda.time.{LocalDate}
+import org.joda.time.{ LocalDate }
 import scala.collection.JavaConversions._
 
 trait CrosswordStore {
