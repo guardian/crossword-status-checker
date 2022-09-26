@@ -11,5 +11,6 @@ jobs:
       ORG: guardian-test
       JAVA_VERSION: 8
       SKIP_NODE: true
+      NODE_PACKAGE_JSON_FILES_MISSING_LOCK: public/package.json
     secrets:
        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
