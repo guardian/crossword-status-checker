@@ -25,7 +25,7 @@ val root = Project("crossword-status-checker", file("."))
       "com.google.guava" % "guava" % "18.0",
       "com.gu" %% "content-api-client-aws" % "0.5",
       "org.scalatest" %% "scalatest" % "3.2.14" % "test",
-      "org.json4s" % "json4s-native_2.11" % "3.4.0"
+      "org.json4s" %% "json4s-native" % "4.0.6"
     )
   )
   .settings(basicSettings)
