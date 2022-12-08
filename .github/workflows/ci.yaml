@@ -31,4 +31,4 @@ jobs:
           configPath: riff-raff.yaml
           contentDirectories: |
             crossword-status-checker:
-              - target/scala-2.11/crossword-status-checker.jar
+              - target/scala-2.13/crossword-status-checker.jar

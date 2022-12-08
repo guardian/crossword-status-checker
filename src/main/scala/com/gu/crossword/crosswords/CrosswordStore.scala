@@ -4,7 +4,7 @@ import com.gu.crossword.Config
 import com.gu.crossword.services.S3.getS3Client
 
 import org.joda.time.{LocalDate}
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait CrosswordStore {
 

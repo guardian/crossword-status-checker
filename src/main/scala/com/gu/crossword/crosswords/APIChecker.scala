@@ -9,7 +9,7 @@ import com.gu.crossword.crosswords.models.{ APIStatus, CrosswordApiLocations }
 import okhttp3._
 
 import scala.concurrent.{ Future, Promise }
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait APIChecker {
 
