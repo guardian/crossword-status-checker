@@ -21,7 +21,6 @@ val root = Project("crossword-status-checker", file("."))
       "com.amazonaws" % "aws-java-sdk-sns" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
       "com.squareup.okhttp3" % "okhttp" % "3.9.0",
-      "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
       "com.google.guava" % "guava" % "18.0",
       "com.gu" %% "content-api-client-aws" % "0.7",
       "org.scalatest" %% "scalatest" % "3.2.14" % "test",
