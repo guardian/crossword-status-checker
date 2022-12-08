@@ -6,7 +6,8 @@ val basicSettings = Seq(
   description   := "AWS Lambda to check crossword status.",
   scalaVersion  := "2.11.7",
   scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked"),
-  assemblyJarName := "crossword-status-checker.jar"
+  assemblyJarName := "crossword-status-checker.jar",
+  assembly / test := (Test / test).value
 )
 
 val awsVersion = "1.11.280"
