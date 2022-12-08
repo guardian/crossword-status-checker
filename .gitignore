@@ -24,3 +24,5 @@ public/node_modules/
 public/api-key.js
 
 .bsp
+.bloop
+metals.sbt

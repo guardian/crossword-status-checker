@@ -14,13 +14,13 @@ val basicSettings = Seq(
   }
 )
 
-val awsVersion = "1.11.280"
+val awsVersion = "1.12.359"
 
 val root = Project("crossword-status-checker", file("."))
   .settings(
 
     libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-lambda-java-core" % "1.1.0",
+      "com.amazonaws" % "aws-lambda-java-core" % "1.2.2",
       "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-sns" % awsVersion,
       "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
