@@ -24,7 +24,7 @@ val root = Project("crossword-status-checker", file("."))
       "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
       "com.google.guava" % "guava" % "18.0",
       "com.gu" %% "content-api-client-aws" % "0.5",
-      "org.scalatest" %% "scalatest" % "2.2.5" % "test",
+      "org.scalatest" %% "scalatest" % "3.2.14" % "test",
       "org.json4s" % "json4s-native_2.11" % "3.4.0"
     )
   )

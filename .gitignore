@@ -23,3 +23,4 @@ project/plugins/project/
 public/node_modules/
 public/api-key.js
 
+.bsp
