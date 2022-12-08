@@ -4,7 +4,7 @@ import Keys._
 val basicSettings = Seq(
   organization  := "com.gu",
   description   := "AWS Lambda to check crossword status.",
-  scalaVersion  := "2.11.7",
+  scalaVersion  := "2.12.17",
   scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked"),
   assemblyJarName := "crossword-status-checker.jar",
   assembly / test := (Test / test).value,

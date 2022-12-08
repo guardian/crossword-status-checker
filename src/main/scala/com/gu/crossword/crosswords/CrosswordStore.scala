@@ -4,7 +4,7 @@ import com.gu.crossword.Config
 import com.gu.crossword.services.S3.getS3Client
 
 import org.joda.time.{LocalDate}
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 trait CrosswordStore {
 
@@ -18,6 +18,7 @@ trait CrosswordStore {
     if (id.isDefined) {
       val files = config.s3Client.listObjects(bucketName, s"${id.get}.$format")
         .getObjectSummaries
+        .asScala
         .toList
         .map(_.getKey)
       val exactMatch = files.filter(_ == s"${id.get}.$format")
