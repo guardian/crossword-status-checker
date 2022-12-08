@@ -23,7 +23,7 @@ val root = Project("crossword-status-checker", file("."))
       "com.squareup.okhttp3" % "okhttp" % "3.9.0",
       "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
       "com.google.guava" % "guava" % "18.0",
-      "com.gu" %% "content-api-client-aws" % "0.5",
+      "com.gu" %% "content-api-client-aws" % "0.7",
       "org.scalatest" %% "scalatest" % "3.2.14" % "test",
       "org.json4s" %% "json4s-native" % "4.0.6"
     )
