@@ -1,0 +1,15 @@
+stacks:
+  - flexible
+regions:
+  - eu-west-1
+allowedStages:
+  - PROD # there is no CODE stage currently
+
+deployments:
+  crossword-status-checker:
+    type: aws-lambda
+    parameters:
+      # yes the extra s is intentional due to legacy reasons
+      functionNames: [crosswords-status-checker-scheduling-]
+      fileName: crossword-status-checker.jar
+      prefixStack: false

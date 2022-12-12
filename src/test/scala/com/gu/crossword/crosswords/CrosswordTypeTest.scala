@@ -2,9 +2,10 @@ package com.gu.crossword.crosswords
 
 import com.gu.crossword.crosswords.models._
 import org.joda.time.LocalDate
-import org.scalatest.{ FunSuite, MustMatchers }
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.must.Matchers
 
-class CrosswordTypeTest extends FunSuite with MustMatchers {
+class CrosswordTypeTest extends AnyFunSuite with Matchers {
   test("test getNoForWeeklyXword") {
     assert(Speedy.getNo(new LocalDate(2017, 7, 23)) === Some(1138))
     assert(Speedy.getNo(new LocalDate(2016, 11, 4)) === None)
