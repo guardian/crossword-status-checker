@@ -11,6 +11,13 @@ class CrosswordTypeTest extends AnyFunSuite with Matchers {
     assert(Speedy.getNo(new LocalDate(2016, 11, 4)) === None)
     assert(Quiptic.getNo(new LocalDate(2016, 11, 7)) === Some(886))
     assert(Everyman.getNo(new LocalDate(2017, 10, 15)) === Some(3705))
+
+    assert(Weekend.getNo(new LocalDate(2017, 11, 4)) === Some(357))
+    // Weekend skipped a week at 573 (the original date would have fallen on xmas day)
+    assert(Weekend.getNo(new LocalDate(2021, 12, 18)) === Some(572))
+    assert(Weekend.getNo(new LocalDate(2021, 12, 25)) === None)
+    assert(Weekend.getNo(new LocalDate(2022, 1, 1)) === Some(573))
+    assert(Weekend.getNo(new LocalDate(2023, 6, 24)) === Some(650))
   }
 
   test("test getNoForPrizeXword") {
@@ -42,6 +49,12 @@ class CrosswordTypeTest extends AnyFunSuite with Matchers {
     assert(Speedy.getDate(1153) === Some(new LocalDate(2017, 11, 5)))
     assert(Everyman.getDate(3696) === Some(new LocalDate(2017, 8, 13)))
     assert(Quiptic.getDate(923) === Some(new LocalDate(2017, 7, 24)))
+
+    assert(Weekend.getDate(357) === Some(new LocalDate(2017, 11, 4)))
+    // Weekend skipped a week at 573 (the original date would have fallen on xmas day)
+    assert(Weekend.getDate(572) === Some(new LocalDate(2021, 12, 18)))
+    assert(Weekend.getDate(573) === Some(new LocalDate(2022, 1, 1)))
+    assert(Weekend.getDate(650) === Some(new LocalDate(2023, 6, 24)))
   }
 
   test("test getDateForPrizeXword") {
