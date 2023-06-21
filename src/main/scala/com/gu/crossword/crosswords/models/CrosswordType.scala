@@ -136,31 +136,29 @@ object CrosswordTypeHelpers {
 
   // repeatedly add (or subtract!) 1 week to `date`, until the weekDiff hits 0,
   // skipping the dates that are marked as nothing published.
-  @tailrec def accountForSkippedWeeks(
+  def accountForSkippedWeeks(date: LocalDate, weekDiff: Int, skippedPublishes: List[LocalDate]): LocalDate =
+    accountForSkippedWeeks(date, weekDiff, skippedPublishes, direction = if (weekDiff > 0) 1 else -1)
+
+  // passes "direction" through as a parameter so we can continue skipping weeks in the correct direction
+  // even at the end of our looping
+  @tailrec
+  private def accountForSkippedWeeks(
     date: LocalDate,
     weekDiff: Int,
-    skippedPublishes: List[LocalDate]
+    skippedPublishes: List[LocalDate],
+    direction: Int
   ): LocalDate = {
-    val direction = if (weekDiff > 0) 1 else -1
-
-    // shouldn't be called by recursion - main base case is weekDiff == 1 or -1
-    if (weekDiff == 0) {
+    if (skippedPublishes.contains(date)) {
+      accountForSkippedWeeks(date.plusWeeks(direction), weekDiff, skippedPublishes, direction)
+    } else if (weekDiff == 0) {
       date
-    // base case; check that the next week in this direction isn't skipped; if it is move one more week and try again
-    } else if (weekDiff == 1 || weekDiff == -1) {
-      val candidate = date.plusWeeks(direction)
-      if (skippedPublishes.contains(candidate)) {
-        accountForSkippedWeeks(candidate, weekDiff, skippedPublishes)
-      } else {
-        candidate
-      }
     // if this date was skipped, move onto next week without touching weekDiff
-    } else if (skippedPublishes.contains(date)) {
-      accountForSkippedWeeks(date.plusWeeks(direction), weekDiff, skippedPublishes)
     } else {
-      accountForSkippedWeeks(date.plusWeeks(direction), weekDiff - direction, skippedPublishes)
+      accountForSkippedWeeks(date.plusWeeks(direction), weekDiff - direction, skippedPublishes, direction)
     }
   }
+
+
   def getDateForWeeklyXWord(
     baseNo: Int,
     basePubDate: LocalDate,
