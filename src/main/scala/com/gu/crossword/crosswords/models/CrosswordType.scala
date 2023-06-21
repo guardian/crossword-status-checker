@@ -148,11 +148,13 @@ object CrosswordTypeHelpers {
     skippedPublishes: List[LocalDate],
     direction: Int
   ): LocalDate = {
+    // if this date was skipped, move onto next week without touching weekDiff
     if (skippedPublishes.contains(date)) {
       accountForSkippedWeeks(date.plusWeeks(direction), weekDiff, skippedPublishes, direction)
+    // base case; when the difference between the week you're on and the week you want to get to is 0, you're there
     } else if (weekDiff == 0) {
       date
-    // if this date was skipped, move onto next week without touching weekDiff
+    // move 1 week in the given direction, and subtract 1 from the difference between week numbers
     } else {
       accountForSkippedWeeks(date.plusWeeks(direction), weekDiff - direction, skippedPublishes, direction)
     }
