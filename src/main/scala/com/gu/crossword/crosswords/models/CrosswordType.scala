@@ -14,34 +14,30 @@ sealed trait CrosswordType extends Product with Serializable {
   def getDate(no: Int): Option[LocalDate]
 }
 
-case object Speedy extends CrosswordType {
+case object Speedy extends WeeklyCrossword {
   val name = "speedy"
   val baseNo = 1153
   val basePubDate = new LocalDate(2017, 11, 5)
-  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(baseNo, basePubDate, 7)(date)
-  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(baseNo, basePubDate, 7)(no)
+  val publicationDayOfWeek: Int = 7
 }
-case object Everyman extends CrosswordType {
+case object Everyman extends WeeklyCrossword {
   val name = "everyman"
   val baseNo = 3708
   val basePubDate = new LocalDate(2017, 11, 5)
-  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(baseNo, basePubDate, 7)(date)
-  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(baseNo, basePubDate, 7)(no)
+  val publicationDayOfWeek: Int = 7
 }
-case object Quiptic extends CrosswordType {
+case object Quiptic extends WeeklyCrossword {
   val name = "quiptic"
   val baseNo = 938
   val basePubDate = new LocalDate(2017, 11, 6)
-  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(baseNo, basePubDate, 1)(date)
-  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(baseNo, basePubDate, 1)(no)
+  val publicationDayOfWeek: Int = 1
+  override val publishesOnChristmas: Boolean = true
 }
-case object Weekend extends CrosswordType {
+case object Weekend extends WeeklyCrossword {
   val name = "weekend"
   val baseNo = 357
   val basePubDate = new LocalDate(2017, 11, 4)
-  val skippedPublishes = List(new LocalDate(2021, 12, 25))
-  def getNo(date: LocalDate) = CrosswordTypeHelpers.getNoForWeeklyXword(baseNo, basePubDate, 6, skippedPublishes)(date)
-  def getDate(no: Int) = CrosswordTypeHelpers.getDateForWeeklyXWord(baseNo, basePubDate, 6, skippedPublishes)(no)
+  val publicationDayOfWeek: Int = 6
 }
 case object Prize extends EveryDayExceptSundayCrossword {
   val name = "prize"
@@ -114,65 +110,56 @@ trait EveryDayExceptSundayCrossword extends CrosswordType {
   }
 }
 
+trait WeeklyCrossword extends CrosswordType {
+  val publicationDayOfWeek: Int // matching the joda numbers for dayOfWeek - Mon=1, Tue=2, Sun=7 etc.
+  val publishesOnChristmas: Boolean = false
+
+  private def isBetween(date: LocalDate, rangestart: LocalDate, rangeend: LocalDate): Boolean = {
+    (date.isAfter(rangestart) && date.isBefore(rangeend)) || (date.isAfter(rangeend) && date.isBefore(rangestart))
+  }
+
+  final def getNo(date: LocalDate): Option[Int] = {
+    val weekDiff = Weeks.weeksBetween(basePubDate, date).getWeeks
+    if (publicationDayOfWeek != date.getDayOfWeek) None
+    else if (publishesOnChristmas) Some(baseNo + weekDiff)
+    else if (!publishesOnChristmas && date.getMonthOfYear == 12 && date.getDayOfMonth == 25) None
+    else {
+      val christmasses = (for {
+        year <- basePubDate.getYear to date.getYear
+        xmasDate = new LocalDate(year, 12, 25)
+        if xmasDate.getDayOfWeek == publicationDayOfWeek && isBetween(xmasDate, basePubDate, date)
+      } yield xmasDate).size
+      Some(baseNo + weekDiff - christmasses)
+    }
+  }
+
+  @tailrec
+  private def searchForDate(date: LocalDate, weekDiff: Int, direction: Int): LocalDate = {
+    val canPublishOnDate = publishesOnChristmas || !(date.getMonthOfYear == 12 && date.getDayOfMonth == 25)
+    if (weekDiff == 0 && canPublishOnDate) date
+    else if (!canPublishOnDate) searchForDate(date.plusWeeks(direction), weekDiff, direction)
+    else searchForDate(date.plusWeeks(direction), weekDiff - direction, direction)
+  }
+
+  final def getDate(number: Int): Option[LocalDate] = {
+    if (number == baseNo) {
+      Some(basePubDate)
+    } else {
+      val weekDiff = number - baseNo
+      val direction = if (weekDiff > 0) 1 else -1
+      val date = searchForDate(basePubDate, weekDiff, direction)
+      if (date.getDayOfWeek == publicationDayOfWeek) {
+        Some(date)
+      } else {
+        None
+      }
+    }
+  }
+}
+
+
 object CrosswordTypeHelpers {
   val allTypes = List(Speedy, Quick, Cryptic, Everyman, Quiptic, Prize, Weekend)
-  def getNoForWeeklyXword(
-    baseNo: Int,
-    basePubDate: LocalDate,
-    publicationDayOfWeek: Int,
-    skippedPublishes: List[LocalDate] = Nil
-  )(date: LocalDate): Option[Int] = {
-
-    if (publicationDayOfWeek != date.getDayOfWeek) None
-    else if (skippedPublishes.contains(date)) None
-    else {
-      val skippedWeeks = skippedPublishes.count(skippedDay => {
-        skippedDay.getDayOfWeek == publicationDayOfWeek && skippedDay.isAfter(basePubDate) && skippedDay.isBefore(date)
-      })
-      val weekDiff = Weeks.weeksBetween(basePubDate, date).getWeeks
-      Some(baseNo + weekDiff - skippedWeeks)
-    }
-  }
-
-  // repeatedly add (or subtract!) 1 week to `date`, until the weekDiff hits 0,
-  // skipping the dates that are marked as nothing published.
-  def accountForSkippedWeeks(date: LocalDate, weekDiff: Int, skippedPublishes: List[LocalDate]): LocalDate =
-    accountForSkippedWeeks(date, weekDiff, skippedPublishes, direction = if (weekDiff > 0) 1 else -1)
-
-  // passes "direction" through as a parameter so we can continue skipping weeks in the correct direction
-  // even at the end of our looping
-  @tailrec
-  private def accountForSkippedWeeks(
-    date: LocalDate,
-    weekDiff: Int,
-    skippedPublishes: List[LocalDate],
-    direction: Int
-  ): LocalDate = {
-    // if this date was skipped, move onto next week without touching weekDiff
-    if (skippedPublishes.contains(date)) {
-      accountForSkippedWeeks(date.plusWeeks(direction), weekDiff, skippedPublishes, direction)
-    // base case; when the difference between the week you're on and the week you want to get to is 0, you're there
-    } else if (weekDiff == 0) {
-      date
-    // move 1 week in the given direction, and subtract 1 from the difference between week numbers
-    } else {
-      accountForSkippedWeeks(date.plusWeeks(direction), weekDiff - direction, skippedPublishes, direction)
-    }
-  }
-
-
-  def getDateForWeeklyXWord(
-    baseNo: Int,
-    basePubDate: LocalDate,
-    publicationDayOfWeek: Int,
-    skippedPublishes: List[LocalDate] = Nil
-  )(no: Int): Option[LocalDate] = {
-    val weekDiff = no - baseNo
-    val date = accountForSkippedWeeks(basePubDate, weekDiff, skippedPublishes)
-
-    if (publicationDayOfWeek != date.getDayOfWeek) None
-    else Some(date)
-  }
 
   def getXWordType(name: String) = {
     name match {

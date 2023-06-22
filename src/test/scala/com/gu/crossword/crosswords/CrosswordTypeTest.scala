@@ -9,50 +9,18 @@ class CrosswordTypeTest extends AnyFunSuite with Matchers {
   test("test getNoForWeeklyXword") {
     assert(Speedy.getNo(new LocalDate(2017, 7, 23)) === Some(1138))
     assert(Speedy.getNo(new LocalDate(2016, 11, 4)) === None)
+    assert(Speedy.getNo(new LocalDate(2023, 6, 18)) === Some(1445))
     assert(Quiptic.getNo(new LocalDate(2016, 11, 7)) === Some(886))
+    assert(Quiptic.getNo(new LocalDate(2017, 12, 25)) === Some(945)) // quiptic publishes/published on xmas
+    assert(Quiptic.getNo(new LocalDate(2023, 6, 19)) === Some(1231))
     assert(Everyman.getNo(new LocalDate(2017, 10, 15)) === Some(3705))
+    assert(Everyman.getNo(new LocalDate(2023, 6, 18)) === Some(4000))
 
     assert(Weekend.getNo(new LocalDate(2017, 11, 4)) === Some(357))
-    // Weekend skipped a week at 573 (the original date would have fallen on xmas day)
     assert(Weekend.getNo(new LocalDate(2021, 12, 18)) === Some(572))
     assert(Weekend.getNo(new LocalDate(2021, 12, 25)) === None)
     assert(Weekend.getNo(new LocalDate(2022, 1, 1)) === Some(573))
     assert(Weekend.getNo(new LocalDate(2023, 6, 24)) === Some(650))
-  }
-
-  test("test get*ForWeeklyXword for hypothetical crossword type with multiple skipped publishes") {
-    val baseNo = 200
-    val basePubDate = new LocalDate(2010, 1, 1)
-    val publicationDayOfWeek = 5 // Friday
-    val skips = List(new LocalDate(2010, 1, 15), new LocalDate(2010, 1, 22))
-
-
-    /*     January 2010
-     * Su Mo Tu We Th Fr Sa
-     *                 1  2
-     *  3  4  5  6  7  8  9
-     * 10 11 12 13 14 15 16
-     * 17 18 19 20 21 22 23
-     * 24 25 26 27 28 29 30
-     * 31
-     *    February 2010
-     * Su Mo Tu We Th Fr Sa
-     *     1  2  3  4  5  6
-     *  7  8  9 10 11 12 13
-     */
-    val getDateFn = CrosswordTypeHelpers.getDateForWeeklyXWord(baseNo, basePubDate, publicationDayOfWeek, skips) _
-    assert(getDateFn(200) === Some(new LocalDate(2010, 1, 1)))
-    assert(getDateFn(201) === Some(new LocalDate(2010, 1, 8)))
-    assert(getDateFn(202) === Some(new LocalDate(2010, 1, 29))) // skipped 15 and 22
-    assert(getDateFn(203) === Some(new LocalDate(2010, 2, 5)))
-
-    val getNoFn = CrosswordTypeHelpers.getNoForWeeklyXword(baseNo, basePubDate, publicationDayOfWeek, skips) _
-    assert(getNoFn(new LocalDate(2010, 1, 1)) === Some(200))
-    assert(getNoFn(new LocalDate(2010, 1, 8)) === Some(201))
-    assert(getNoFn(new LocalDate(2010, 1, 29)) === Some(202))
-    assert(getNoFn(new LocalDate(2010, 2, 5)) === Some(203))
-    assert(getNoFn(new LocalDate(2010, 1, 15)) === None)
-    assert(getNoFn(new LocalDate(2010, 1, 22)) === None)
   }
 
   test("test getNoForPrizeXword") {
@@ -82,11 +50,14 @@ class CrosswordTypeTest extends AnyFunSuite with Matchers {
   test("test getDateForWeeklyXword") {
     assert(Speedy.getDate(1151) === Some(new LocalDate(2017, 10, 22)))
     assert(Speedy.getDate(1153) === Some(new LocalDate(2017, 11, 5)))
+    assert(Speedy.getDate(1445) === Some(new LocalDate(2023, 6, 18)))
     assert(Everyman.getDate(3696) === Some(new LocalDate(2017, 8, 13)))
+    assert(Everyman.getDate(4000) === Some(new LocalDate(2023, 6, 18)))
     assert(Quiptic.getDate(923) === Some(new LocalDate(2017, 7, 24)))
+    assert(Quiptic.getDate(945) === Some(new LocalDate(2017, 12, 25)))
+    assert(Quiptic.getDate(1231) === Some(new LocalDate(2023, 6, 19)))
 
     assert(Weekend.getDate(357) === Some(new LocalDate(2017, 11, 4)))
-    // Weekend skipped a week at 573 (the original date would have fallen on xmas day)
     assert(Weekend.getDate(572) === Some(new LocalDate(2021, 12, 18)))
     assert(Weekend.getDate(573) === Some(new LocalDate(2022, 1, 1)))
     assert(Weekend.getDate(650) === Some(new LocalDate(2023, 6, 24)))
