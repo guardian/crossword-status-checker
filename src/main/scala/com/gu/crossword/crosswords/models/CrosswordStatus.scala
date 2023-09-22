@@ -21,14 +21,16 @@ case class APIStatus(
     inFlexDraftAPI: Boolean,
     inFlexLiveApi: Boolean,
     inCapiPreview: Boolean,
-    inLiveCapi: Boolean = false
+    inLiveCapi: Boolean = false,
+    inCrosswordMicroAppV2: Boolean
 )
 case class CrosswordApiLocations(
     microappUrl: String,
     flexDraftUrl: String,
     flexLiveUrl: String,
     capiPreviewUrl: String,
-    capiLiveUrl: String
+    capiLiveUrl: String,
+    microappV2Url: String
 )
 case class CrosswordStatus(s3Status: CrosswordS3Status, apiStatus: APIStatus)
 case class CrosswordReadyStatus(

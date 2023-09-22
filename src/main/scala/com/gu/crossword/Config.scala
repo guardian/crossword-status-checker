@@ -43,7 +43,9 @@ class Config(val context: Context) {
   val awsRegion: String = "eu-west-1"
 
   val crosswordMicroAppUrl = getConfig("crosswordmicroapp.url")
+  val crosswordMicroAppV2Url = getConfig("crosswordmicroapp.v2.url")
   val crosswordMicroAppKey = getConfig("crosswordmicroapp.key")
+  val crosswordMicroAppV2Key = getConfig("crosswordmicroapp.v2.key")
 
   val capiUrl = getConfig("capi.live.url")
   val capiKey = getConfig("capi.key")
