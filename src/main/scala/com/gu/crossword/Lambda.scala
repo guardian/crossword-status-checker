@@ -1,17 +1,17 @@
 package com.gu.crossword
 
-import org.joda.time.{ LocalDate }
-import java.util.{ Map => JMap }
+import org.joda.time.{LocalDate}
+import java.util.{Map => JMap}
 
-import com.amazonaws.services.lambda.runtime.{ Context, RequestHandler }
+import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.gu.crossword.crosswords.models.CrosswordStatus
-import com.gu.crossword.crosswords.{ APIChecker, CrosswordStore }
+import com.gu.crossword.crosswords.{APIChecker, CrosswordStore}
 import com.gu.crossword.crosswords.CrosswordDateChecker._
 import org.json4s._
 import org.json4s.native.Serialization.write
 
 import scala.concurrent.duration._
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -20,7 +20,10 @@ class Lambda
     with APIChecker
     with CrosswordStore {
 
-  override def handleRequest(event: JMap[String, Object], context: Context): String = {
+  override def handleRequest(
+      event: JMap[String, Object],
+      context: Context
+  ): String = {
 
     implicit val config = new Config(context)
 
@@ -35,7 +38,8 @@ class Lambda
       val path = s"crosswords/$crosswordType/$crosswordId"
       val apiStatus = checkIfCrosswordInApis(path)(config)
 
-      val status = CrosswordStatus(s3Status, Await.result(apiStatus, 10 seconds))
+      val status =
+        CrosswordStatus(s3Status, Await.result(apiStatus, 10 seconds))
 
       val statusJson = CrosswordStatus.toJson(status)
       statusJson
@@ -47,10 +51,17 @@ class Lambda
         "Can check a maximum of 10 days"
       } else {
         val daysToCheck = generateListOfNextNDays(noDaysToCheck)
-        println(s"Checking the next $noDaysToCheck days for crosswords which aren't ready: ${daysToCheck.mkString(", ")}")
+        println(
+          s"Checking the next $noDaysToCheck days for crosswords which aren't ready: ${daysToCheck.mkString(", ")}"
+        )
 
         // get statuses
-        val statuses = Await.result(Future.sequence(daysToCheck.map(d => getAllCrosswordStatusesForDate(d)(config))), 10 seconds)
+        val statuses = Await.result(
+          Future.sequence(
+            daysToCheck.map(d => getAllCrosswordStatusesForDate(d)(config))
+          ),
+          10 seconds
+        )
 
         // alert
         alertForBadCrosswords(statuses.flatten)(config)
