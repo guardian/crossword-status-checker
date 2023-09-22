@@ -18,11 +18,12 @@ trait APIChecker {
   def getApiLocations(path: String)(config: Config): CrosswordApiLocations = {
     val flexUrl = s"${config.flexUrl}${config.flexFindByPathEndpoint}"
     CrosswordApiLocations(
-      s"${config.crosswordMicroAppUrl}/api/$path.json?api-key=${config.crosswordMicroAppKey}&show-unpublished=true",
-      s"$flexUrl/$path/preview",
-      s"$flexUrl/$path/live",
-      s"${config.capiPreviewUrl}/$path",
-      s"${config.capiUrl}/$path?api-key=${config.capiKey}"
+      microappUrl =
+        s"${config.crosswordMicroAppUrl}/api/$path.json?api-key=${config.crosswordMicroAppKey}&show-unpublished=true",
+      flexDraftUrl = s"$flexUrl/$path/preview",
+      flexLiveUrl = s"$flexUrl/$path/live",
+      capiPreviewUrl = s"${config.capiPreviewUrl}/$path",
+      capiLiveUrl = s"${config.capiUrl}/$path?api-key=${config.capiKey}"
     )
   }
 
@@ -91,7 +92,13 @@ trait APIChecker {
       fls <- flexLiveStatus
       pcs <- previewCapiStatus
       lcs <- liveCapiStatus
-    } yield APIStatus(ms, fds, fls, pcs, lcs)
+    } yield APIStatus(
+      inCrosswordMicroApp = ms,
+      inFlexDraftAPI = fds,
+      inFlexLiveApi = fls,
+      inCapiPreview = pcs,
+      inLiveCapi = lcs
+    )
   }
 
 }
