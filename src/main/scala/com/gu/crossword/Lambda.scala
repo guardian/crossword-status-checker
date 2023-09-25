@@ -17,7 +17,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class Lambda
     extends RequestHandler[JMap[String, Object], String]
-    with APIChecker
     with CrosswordStore {
 
   override def handleRequest(
@@ -36,7 +35,7 @@ class Lambda
       val s3Status = checkCrosswordS3Status(crosswordId, crosswordType)
 
       val path = s"crosswords/$crosswordType/$crosswordId"
-      val apiStatus = checkIfCrosswordInApis(path)(config)
+      val apiStatus = APIChecker.checkIfCrosswordInApis(path)(config)
 
       val status =
         CrosswordStatus(s3Status, Await.result(apiStatus, 10 seconds))

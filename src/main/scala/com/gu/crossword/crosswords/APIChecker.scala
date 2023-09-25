@@ -11,7 +11,7 @@ import okhttp3._
 import scala.concurrent.{Future, Promise}
 import scala.jdk.CollectionConverters._
 
-trait APIChecker {
+object APIChecker {
 
   private val http = new OkHttpClient()
 

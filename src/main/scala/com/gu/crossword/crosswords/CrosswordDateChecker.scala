@@ -7,7 +7,7 @@ import models._
 
 import scala.concurrent.Future
 
-object CrosswordDateChecker extends APIChecker {
+object CrosswordDateChecker {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -28,7 +28,8 @@ object CrosswordDateChecker extends APIChecker {
     val crosswordStatuses = CrosswordTypeHelpers.allTypes.flatMap { cw =>
       cw.getNo(date).map { no =>
         val path = s"crosswords/${cw.name}/$no"
-        val ready = checkIfCrosswordInApis(path)(config)
+        val ready = APIChecker
+          .checkIfCrosswordInApis(path)(config)
           .map(r => CrosswordReadyStatus(cw.name, no, r.inCapiPreview, date))
         ready
       }
