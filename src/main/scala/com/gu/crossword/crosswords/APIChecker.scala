@@ -15,7 +15,9 @@ object APIChecker {
 
   private val http = new OkHttpClient()
 
-  def getApiLocations(path: String)(config: Config): CrosswordApiLocations = {
+  private def getApiLocations(
+      path: String
+  )(config: Config): CrosswordApiLocations = {
     val flexUrl = s"${config.flexUrl}${config.flexFindByPathEndpoint}"
     CrosswordApiLocations(
       s"${config.crosswordMicroAppUrl}/api/$path.json?api-key=${config.crosswordMicroAppKey}&show-unpublished=true",
