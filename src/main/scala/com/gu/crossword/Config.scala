@@ -2,9 +2,14 @@ package com.gu.crossword
 
 import java.util.Properties
 
-import com.amazonaws.auth.{ AWSCredentialsProvider, AWSCredentialsProviderChain, DefaultAWSCredentialsProviderChain, STSAssumeRoleSessionCredentialsProvider }
+import com.amazonaws.auth.{
+  AWSCredentialsProvider,
+  AWSCredentialsProviderChain,
+  DefaultAWSCredentialsProviderChain,
+  STSAssumeRoleSessionCredentialsProvider
+}
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.regions.{ Region, Regions }
+import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.lambda.runtime.Context
 import com.gu.contentapi.client.IAMSigner
 import com.gu.crossword.services.S3.getS3Client
@@ -21,11 +26,14 @@ class Config(val context: Context) {
 
   val s3Client = getS3Client(awsCredentialsProvider)
 
-  val isProd = Try(context.getFunctionName.toLowerCase.contains("-prod")).getOrElse(true)
+  val isProd =
+    Try(context.getFunctionName.toLowerCase.contains("-prod")).getOrElse(true)
   private val stage = if (isProd) "PROD" else "CODE"
   private val config = loadConfig()
 
-  def getConfig(property: String) = Option(config.getProperty(property)) getOrElse sys.error(s"'$property' property missing.")
+  def getConfig(property: String) = Option(
+    config.getProperty(property)
+  ) getOrElse sys.error(s"'$property' property missing.")
 
   val forProcessingBucketName: String = "crossword-files-for-processing"
   val processedBucketName: String = "crossword-processed-files"
@@ -48,7 +56,10 @@ class Config(val context: Context) {
     val capiPreviewCredentials: AWSCredentialsProvider = {
       new AWSCredentialsProviderChain(
         new ProfileCredentialsProvider("capi"),
-        new STSAssumeRoleSessionCredentialsProvider.Builder(capiPreviewRole, "capi").build()
+        new STSAssumeRoleSessionCredentialsProvider.Builder(
+          capiPreviewRole,
+          "capi"
+        ).build()
       )
     }
 
@@ -67,10 +78,13 @@ class Config(val context: Context) {
 
   private def loadConfig() = {
     val configFileKey = s"$stage/config.properties"
-    val configInputStream = s3Client.getObject("crossword-status-checker-config", configFileKey)
+    val configInputStream =
+      s3Client.getObject("crossword-status-checker-config", configFileKey)
     val context2 = configInputStream.getObjectContent
     val configFile: Properties = new Properties()
-    Try(configFile.load(context2)) orElse sys.error("Could not load config file from s3. This lambda will not run.")
+    Try(configFile.load(context2)) orElse sys.error(
+      "Could not load config file from s3. This lambda will not run."
+    )
     configFile
   }
 }

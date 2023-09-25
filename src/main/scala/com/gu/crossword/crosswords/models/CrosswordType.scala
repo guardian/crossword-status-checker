@@ -1,6 +1,6 @@
 package com.gu.crossword.crosswords.models
 
-import org.joda.time.{ Days, LocalDate, Weeks }
+import org.joda.time.{Days, LocalDate, Weeks}
 
 import scala.annotation.tailrec
 
@@ -85,7 +85,11 @@ trait EveryDayExceptSundayCrossword extends CrosswordType {
   }
 
   @tailrec
-  private def search(target: Either[Int, LocalDate], number: Int, date: LocalDate): Option[(Int, LocalDate)] = {
+  private def search(
+      target: Either[Int, LocalDate],
+      number: Int,
+      date: LocalDate
+  ): Option[(Int, LocalDate)] = {
     val isSunday = date.getDayOfWeek == 7
     val isChristmas = date.getDayOfMonth == 25 && date.getMonthOfYear == 12
 
@@ -114,31 +118,50 @@ trait WeeklyCrossword extends CrosswordType {
   val publicationDayOfWeek: Int // matching the joda numbers for dayOfWeek - Mon=1, Tue=2, Sun=7 etc.
   val publishesOnChristmas: Boolean = false
 
-  private def isBetween(date: LocalDate, rangestart: LocalDate, rangeend: LocalDate): Boolean = {
-    (date.isAfter(rangestart) && date.isBefore(rangeend)) || (date.isAfter(rangeend) && date.isBefore(rangestart))
+  private def isBetween(
+      date: LocalDate,
+      rangestart: LocalDate,
+      rangeend: LocalDate
+  ): Boolean = {
+    (date.isAfter(rangestart) && date.isBefore(rangeend)) || (date.isAfter(
+      rangeend
+    ) && date.isBefore(rangestart))
   }
 
   final def getNo(date: LocalDate): Option[Int] = {
     val weekDiff = Weeks.weeksBetween(basePubDate, date).getWeeks
     if (publicationDayOfWeek != date.getDayOfWeek) None
     else if (publishesOnChristmas) Some(baseNo + weekDiff)
-    else if (!publishesOnChristmas && date.getMonthOfYear == 12 && date.getDayOfMonth == 25) None
+    else if (
+      !publishesOnChristmas && date.getMonthOfYear == 12 && date.getDayOfMonth == 25
+    ) None
     else {
       val christmasses = (for {
         year <- basePubDate.getYear to date.getYear
         xmasDate = new LocalDate(year, 12, 25)
-        if xmasDate.getDayOfWeek == publicationDayOfWeek && isBetween(xmasDate, basePubDate, date)
+        if xmasDate.getDayOfWeek == publicationDayOfWeek && isBetween(
+          xmasDate,
+          basePubDate,
+          date
+        )
       } yield xmasDate).size
       Some(baseNo + weekDiff - christmasses)
     }
   }
 
   @tailrec
-  private def searchForDate(date: LocalDate, weekDiff: Int, direction: Int): LocalDate = {
-    val canPublishOnDate = publishesOnChristmas || !(date.getMonthOfYear == 12 && date.getDayOfMonth == 25)
+  private def searchForDate(
+      date: LocalDate,
+      weekDiff: Int,
+      direction: Int
+  ): LocalDate = {
+    val canPublishOnDate =
+      publishesOnChristmas || !(date.getMonthOfYear == 12 && date.getDayOfMonth == 25)
     if (weekDiff == 0 && canPublishOnDate) date
-    else if (!canPublishOnDate) searchForDate(date.plusWeeks(direction), weekDiff, direction)
-    else searchForDate(date.plusWeeks(direction), weekDiff - direction, direction)
+    else if (!canPublishOnDate)
+      searchForDate(date.plusWeeks(direction), weekDiff, direction)
+    else
+      searchForDate(date.plusWeeks(direction), weekDiff - direction, direction)
   }
 
   final def getDate(number: Int): Option[LocalDate] = {
@@ -157,19 +180,18 @@ trait WeeklyCrossword extends CrosswordType {
   }
 }
 
-
 object CrosswordTypeHelpers {
   val allTypes = List(Speedy, Quick, Cryptic, Everyman, Quiptic, Prize, Weekend)
 
   def getXWordType(name: String) = {
     name match {
-      case "speedy" => Speedy
-      case "quick" => Quick
-      case "cryptic" => Cryptic
+      case "speedy"   => Speedy
+      case "quick"    => Quick
+      case "cryptic"  => Cryptic
       case "everyman" => Everyman
-      case "quiptic" => Quiptic
-      case "prize" => Prize
-      case "weekend" => Weekend
+      case "quiptic"  => Quiptic
+      case "prize"    => Prize
+      case "weekend"  => Weekend
     }
   }
 }
