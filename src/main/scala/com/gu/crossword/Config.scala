@@ -3,15 +3,12 @@ package com.gu.crossword
 import java.util.Properties
 
 import com.amazonaws.auth.{
-  AWSCredentialsProvider,
   AWSCredentialsProviderChain,
-  DefaultAWSCredentialsProviderChain,
-  STSAssumeRoleSessionCredentialsProvider
+  DefaultAWSCredentialsProviderChain
 }
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.regions.{Region, Regions}
+
 import com.amazonaws.services.lambda.runtime.Context
-import com.gu.contentapi.client.IAMSigner
 import com.gu.crossword.crosswords.RequestBuilderWithSigner
 import com.gu.crossword.services.S3.getS3Client
 import com.gu.crossword.services.SNS.getSNSClient
@@ -50,24 +47,9 @@ class Config(val context: Context) {
   val capiKey = getConfig("capi.key")
 
   val capiPreviewUrl = getConfig("capi.preview.iam-url")
+  val capiPreviewRole = getConfig("capi.preview.role")
 
-  val signer = {
-    val capiPreviewRole = getConfig("capi.preview.role")
-
-    val capiPreviewCredentials: AWSCredentialsProvider = {
-      new AWSCredentialsProviderChain(
-        new ProfileCredentialsProvider("capi"),
-        new STSAssumeRoleSessionCredentialsProvider.Builder(
-          capiPreviewRole,
-          "capi"
-        ).build()
-      )
-    }
-
-    new IAMSigner(capiPreviewCredentials, awsRegion)
-  }
-
-  val requestBuilder = new RequestBuilderWithSigner(signer)
+  val requestBuilder = new RequestBuilderWithSigner(capiPreviewRole, awsRegion)
 
   val flexUrl = getConfig("flex.api.loadbalancer")
   val flexFindByPathEndpoint = getConfig("flex.api.findbypathendpoint")
