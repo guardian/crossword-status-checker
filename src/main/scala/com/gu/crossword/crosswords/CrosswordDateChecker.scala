@@ -1,7 +1,7 @@
 package com.gu.crossword.crosswords
 
 import com.gu.crossword.Config
-import com.gu.crossword.services.SNS
+import com.gu.crossword.services.{Constants, SNS}
 import org.joda.time.{LocalDate, Period}
 import models._
 
@@ -25,11 +25,17 @@ object CrosswordDateChecker {
 
     println(s"Checking status of crosswords on $date")
 
+    val requestBuilder =
+      new RequestBuilderWithSigner(
+        config.capiPreviewRole,
+        Constants.awsRegion.toString
+      )
+
     val crosswordStatuses = CrosswordTypeHelpers.allTypes.flatMap { cw =>
       cw.getNo(date).map { no =>
         val path = s"crosswords/${cw.name}/$no"
         val ready = APIChecker
-          .checkIfCrosswordInApis(path)(config)
+          .checkIfCrosswordInApis(path)(config, requestBuilder)
           .map(r => CrosswordReadyStatus(cw.name, no, r.inCapiPreview, date))
         ready
       }

@@ -5,8 +5,13 @@ import org.joda.time.LocalDate
 import java.util.{Map => JMap}
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.gu.crossword.crosswords.models.CrosswordStatus
-import com.gu.crossword.crosswords.{APIChecker, CrosswordStore}
+import com.gu.crossword.crosswords.{
+  APIChecker,
+  CrosswordStore,
+  RequestBuilderWithSigner
+}
 import com.gu.crossword.crosswords.CrosswordDateChecker._
+import com.gu.crossword.services.Constants
 import org.json4s._
 import org.json4s.native.Serialization.write
 
@@ -24,7 +29,13 @@ class Lambda
       context: Context
   ): String = {
 
-    implicit val config = new Config(context)
+    implicit val config = Config.fromContext(context)
+
+    val requestBuilder =
+      new RequestBuilderWithSigner(
+        config.capiPreviewRole,
+        Constants.awsRegion.toString
+      )
 
     if (event.containsKey("type") && event.containsKey("id")) {
       val crosswordType = event.get("type").toString
@@ -35,7 +46,8 @@ class Lambda
       val s3Status = checkCrosswordS3Status(crosswordId, crosswordType)
 
       val path = s"crosswords/$crosswordType/$crosswordId"
-      val apiStatus = APIChecker.checkIfCrosswordInApis(path)(config)
+      val apiStatus =
+        APIChecker.checkIfCrosswordInApis(path)(config, requestBuilder)
 
       val status =
         CrosswordStatus(s3Status, Await.result(apiStatus, 10 seconds))

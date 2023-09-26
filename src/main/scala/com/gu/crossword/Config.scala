@@ -2,49 +2,81 @@ package com.gu.crossword
 
 import java.util.Properties
 import com.amazonaws.services.lambda.runtime.Context
-import com.gu.crossword.crosswords.RequestBuilderWithSigner
-import com.gu.crossword.services.S3
+import com.gu.crossword.crosswords.{RequestBuilder, RequestBuilderWithSigner}
+import com.gu.crossword.services.{Constants, S3}
 
 import scala.util.Try
 
-class Config(val context: Context) {
+case class Config(
+    forProcessingBucketName: String,
+    processedBucketName: String,
+    processedPdfBucketName: String,
+    crosswordMicroAppUrl: String,
+    crosswordMicroAppKey: String,
+    capiUrl: String,
+    capiKey: String,
+    capiPreviewUrl: String,
+    capiPreviewRole: String,
+    flexUrl: String,
+    flexFindByPathEndpoint: String,
+    composerApiUrl: String,
+    composerFindByPathEndpoint: String,
+    alertTopic: String,
+)
 
-  val isProd =
-    Try(context.getFunctionName.toLowerCase.contains("-prod")).getOrElse(true)
-  private val stage = if (isProd) "PROD" else "CODE"
-  private val config = loadConfig()
+object Config {
 
-  def getConfig(property: String) = Option(
-    config.getProperty(property)
-  ) getOrElse sys.error(s"'$property' property missing.")
+  def fromContext(context: Context): Config = {
+    val isProd =
+      Try(context.getFunctionName.toLowerCase.contains("-prod")).getOrElse(true)
+    val stage = if (isProd) "PROD" else "CODE"
+    val config = loadConfig(stage)
 
-  val forProcessingBucketName: String = "crossword-files-for-processing"
-  val processedBucketName: String = "crossword-processed-files"
+    def getConfig(property: String) = Option(
+      config.getProperty(property)
+    ) getOrElse sys.error(s"'$property' property missing.")
 
-  val processedPdfBucketName: String = "crosswords-pdf-public-prod"
+    val forProcessingBucketName: String = "crossword-files-for-processing"
+    val processedBucketName: String = "crossword-processed-files"
 
-  val awsRegion: String = "eu-west-1"
+    val processedPdfBucketName: String = "crosswords-pdf-public-prod"
 
-  val crosswordMicroAppUrl = getConfig("crosswordmicroapp.url")
-  val crosswordMicroAppKey = getConfig("crosswordmicroapp.key")
+    val crosswordMicroAppUrl = getConfig("crosswordmicroapp.url")
+    val crosswordMicroAppKey = getConfig("crosswordmicroapp.key")
 
-  val capiUrl = getConfig("capi.live.url")
-  val capiKey = getConfig("capi.key")
+    val capiUrl = getConfig("capi.live.url")
+    val capiKey = getConfig("capi.key")
 
-  val capiPreviewUrl = getConfig("capi.preview.iam-url")
-  val capiPreviewRole = getConfig("capi.preview.role")
+    val capiPreviewUrl = getConfig("capi.preview.iam-url")
+    val capiPreviewRole = getConfig("capi.preview.role")
 
-  val requestBuilder = new RequestBuilderWithSigner(capiPreviewRole, awsRegion)
+    val flexUrl = getConfig("flex.api.loadbalancer")
+    val flexFindByPathEndpoint = getConfig("flex.api.findbypathendpoint")
 
-  val flexUrl = getConfig("flex.api.loadbalancer")
-  val flexFindByPathEndpoint = getConfig("flex.api.findbypathendpoint")
+    val composerApiUrl = getConfig("composer.url")
+    val composerFindByPathEndpoint = getConfig("composer.findbypathendpoint")
 
-  val composerApiUrl = getConfig("composer.url")
-  val composerFindByPathEndpoint = getConfig("composer.findbypathendpoint")
+    val alertTopic = getConfig("sns.alert.topic")
 
-  val alertTopic = getConfig("sns.alert.topic")
+    Config(
+      forProcessingBucketName = forProcessingBucketName,
+      processedBucketName = processedBucketName,
+      processedPdfBucketName = processedPdfBucketName,
+      crosswordMicroAppUrl = crosswordMicroAppUrl,
+      crosswordMicroAppKey = crosswordMicroAppKey,
+      capiUrl = capiUrl,
+      capiKey = capiKey,
+      capiPreviewUrl = capiPreviewUrl,
+      capiPreviewRole = capiPreviewRole,
+      flexUrl = flexUrl,
+      flexFindByPathEndpoint = flexFindByPathEndpoint,
+      composerApiUrl = composerApiUrl,
+      composerFindByPathEndpoint = composerFindByPathEndpoint,
+      alertTopic = alertTopic,
+    )
+  }
 
-  private def loadConfig() = {
+  private def loadConfig(stage: String) = {
     val configFileKey = s"$stage/config.properties"
     val configInputStream =
       S3.client.getObject("crossword-status-checker-config", configFileKey)
@@ -55,4 +87,5 @@ class Config(val context: Context) {
     )
     configFile
   }
+
 }

@@ -28,7 +28,7 @@ object APIChecker {
 
   def checkIfCrosswordInApis(
       path: String
-  )(config: Config): Future[APIStatus] = {
+  )(config: Config, builder: RequestBuilder): Future[APIStatus] = {
 
     import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -63,8 +63,6 @@ object APIChecker {
     }
 
     val apiLocations = getApiLocations(path)(config)
-
-    val builder = config.requestBuilder
 
     val microappStatus = check200(
       builder.buildRequest(apiLocations.microappUrl, false)
