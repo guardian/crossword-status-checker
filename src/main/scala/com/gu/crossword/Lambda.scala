@@ -1,8 +1,8 @@
 package com.gu.crossword
 
-import org.joda.time.{LocalDate}
-import java.util.{Map => JMap}
+import org.joda.time.LocalDate
 
+import java.util.{Map => JMap}
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.gu.crossword.crosswords.models.CrosswordStatus
 import com.gu.crossword.crosswords.{APIChecker, CrosswordStore}

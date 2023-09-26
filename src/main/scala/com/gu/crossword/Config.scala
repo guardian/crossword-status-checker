@@ -12,6 +12,7 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.lambda.runtime.Context
 import com.gu.contentapi.client.IAMSigner
+import com.gu.crossword.crosswords.RequestBuilderWithSigner
 import com.gu.crossword.services.S3.getS3Client
 import com.gu.crossword.services.SNS.getSNSClient
 
@@ -65,6 +66,8 @@ class Config(val context: Context) {
 
     new IAMSigner(capiPreviewCredentials, awsRegion)
   }
+
+  val requestBuilder = new RequestBuilderWithSigner(signer)
 
   val flexUrl = getConfig("flex.api.loadbalancer")
   val flexFindByPathEndpoint = getConfig("flex.api.findbypathendpoint")

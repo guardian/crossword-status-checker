@@ -1,15 +1,12 @@
 package com.gu.crossword.crosswords
 
 import java.io.IOException
-import java.net.URI
 
-import com.gu.contentapi.client.IAMSigner
 import com.gu.crossword.Config
 import com.gu.crossword.crosswords.models.{APIStatus, CrosswordApiLocations}
 import okhttp3._
 
 import scala.concurrent.{Future, Promise}
-import scala.jdk.CollectionConverters._
 
 object APIChecker {
 
@@ -65,27 +62,25 @@ object APIChecker {
       promise.future
     }
 
-    def buildRequest(reqUrl: String) = new Request.Builder().url(reqUrl).build
-
-    def buildReqWithAuth(reqUrl: String, signer: IAMSigner) =
-      new Request.Builder()
-        .url(reqUrl)
-        .headers {
-          val headers =
-            signer.addIAMHeaders(headers = Map.empty, uri = new URI(reqUrl))
-          Headers.of(headers.asJava)
-        }
-        .build
-
     val apiLocations = getApiLocations(path)(config)
 
-    val microappStatus = check200(buildRequest(apiLocations.microappUrl))
+    val builder = config.requestBuilder
 
-    val flexDraftStatus = check200(buildRequest(apiLocations.flexDraftUrl))
-    val flexLiveStatus = check200(buildRequest(apiLocations.flexLiveUrl))
-    val liveCapiStatus = check200(buildRequest(apiLocations.capiLiveUrl))
+    val microappStatus = check200(
+      builder.buildRequest(apiLocations.microappUrl, false)
+    )
+
+    val flexDraftStatus = check200(
+      builder.buildRequest(apiLocations.flexDraftUrl, false)
+    )
+    val flexLiveStatus = check200(
+      builder.buildRequest(apiLocations.flexLiveUrl, false)
+    )
+    val liveCapiStatus = check200(
+      builder.buildRequest(apiLocations.capiLiveUrl, false)
+    )
     val previewCapiStatus = check200(
-      buildReqWithAuth(apiLocations.capiPreviewUrl, config.signer)
+      builder.buildRequest(apiLocations.capiPreviewUrl, true)
     )
 
     for {
