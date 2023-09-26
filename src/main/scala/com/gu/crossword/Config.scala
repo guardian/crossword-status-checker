@@ -1,28 +1,13 @@
 package com.gu.crossword
 
 import java.util.Properties
-
-import com.amazonaws.auth.{
-  AWSCredentialsProviderChain,
-  DefaultAWSCredentialsProviderChain
-}
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-
 import com.amazonaws.services.lambda.runtime.Context
 import com.gu.crossword.crosswords.RequestBuilderWithSigner
-import com.gu.crossword.services.S3.getS3Client
-import com.gu.crossword.services.SNS.getSNSClient
+import com.gu.crossword.services.S3
 
 import scala.util.Try
 
 class Config(val context: Context) {
-
-  val awsCredentialsProvider = new AWSCredentialsProviderChain(
-    new ProfileCredentialsProvider("composer"),
-    new DefaultAWSCredentialsProviderChain
-  )
-
-  val s3Client = getS3Client(awsCredentialsProvider)
 
   val isProd =
     Try(context.getFunctionName.toLowerCase.contains("-prod")).getOrElse(true)
@@ -57,14 +42,12 @@ class Config(val context: Context) {
   val composerApiUrl = getConfig("composer.url")
   val composerFindByPathEndpoint = getConfig("composer.findbypathendpoint")
 
-  val snsClient = getSNSClient(awsCredentialsProvider, awsRegion)
-
   val alertTopic = getConfig("sns.alert.topic")
 
   private def loadConfig() = {
     val configFileKey = s"$stage/config.properties"
     val configInputStream =
-      s3Client.getObject("crossword-status-checker-config", configFileKey)
+      S3.client.getObject("crossword-status-checker-config", configFileKey)
     val context2 = configInputStream.getObjectContent
     val configFile: Properties = new Properties()
     Try(configFile.load(context2)) orElse sys.error(

@@ -1,9 +1,8 @@
 package com.gu.crossword.crosswords
 
 import com.gu.crossword.Config
-import com.gu.crossword.services.S3.getS3Client
+import com.gu.crossword.services.S3
 
-import org.joda.time.{LocalDate}
 import scala.jdk.CollectionConverters._
 
 trait CrosswordStore {
@@ -25,7 +24,7 @@ trait CrosswordStore {
       format: String
   )(config: Config): List[String] = {
     if (id.isDefined) {
-      val files = config.s3Client
+      val files = S3.client
         .listObjects(bucketName, s"${id.get}.$format")
         .getObjectSummaries
         .asScala
