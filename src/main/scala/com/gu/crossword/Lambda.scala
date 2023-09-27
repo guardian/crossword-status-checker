@@ -66,10 +66,18 @@ class Lambda
           s"Checking the next $noDaysToCheck days for crosswords which aren't ready: ${daysToCheck.mkString(", ")}"
         )
 
+        val requestBuilder =
+          new RequestBuilderWithSigner(
+            config.capiPreviewRole,
+            Constants.awsRegion.toString
+          )
+
         // get statuses
         val statuses = Await.result(
           Future.sequence(
-            daysToCheck.map(d => getAllCrosswordStatusesForDate(d)(config))
+            daysToCheck.map(d =>
+              getAllCrosswordStatusesForDate(d)(config, requestBuilder)
+            )
           ),
           10 seconds
         )
@@ -80,10 +88,17 @@ class Lambda
         s"checked $noDaysToCheck days"
       }
     } else if (event.containsKey("dateToCheck")) {
+      val requestBuilder =
+        new RequestBuilderWithSigner(
+          config.capiPreviewRole,
+          Constants.awsRegion.toString
+        )
+
       val dateToCheck = event.get("dateToCheck").toString
       val d = LocalDate.parse(dateToCheck)
 
-      val dateStatusFt = getAllCrosswordStatusesForDate(d)(config)
+      val dateStatusFt =
+        getAllCrosswordStatusesForDate(d)(config, requestBuilder)
       val dateStatus = Await.result(dateStatusFt, 10 seconds)
 
       val jsonStatus = write(dateStatus)(DefaultFormats)

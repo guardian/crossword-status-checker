@@ -21,15 +21,9 @@ object CrosswordDateChecker {
 
   def getAllCrosswordStatusesForDate(
       date: LocalDate
-  )(config: Config): Future[List[CrosswordReadyStatus]] = {
+  )(config: Config, requestBuilder: RequestBuilder): Future[List[CrosswordReadyStatus]] = {
 
     println(s"Checking status of crosswords on $date")
-
-    val requestBuilder =
-      new RequestBuilderWithSigner(
-        config.capiPreviewRole,
-        Constants.awsRegion.toString
-      )
 
     val crosswordStatuses = CrosswordTypeHelpers.allTypes.flatMap { cw =>
       cw.getNo(date).map { no =>
@@ -42,6 +36,8 @@ object CrosswordDateChecker {
     }
     Future.sequence(crosswordStatuses)
   }
+
+  def checkNextNDays(noDaysToCheck)
 
   def alertForBadCrosswords(
       statuses: List[CrosswordReadyStatus]
