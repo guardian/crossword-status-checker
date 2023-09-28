@@ -62,7 +62,10 @@ class Lambda
         "Can check a maximum of 10 days"
       } else {
         val statuses = Await
-          .result(checkNextNDays(noDaysToCheck)(config), 10.seconds)
+          .result(
+            checkNextNDays(noDaysToCheck)(config, requestBuilder),
+            10.seconds
+          )
           .flatten
 
         // alert if any of the crosswords are not ready
@@ -71,11 +74,6 @@ class Lambda
         s"checked $noDaysToCheck days"
       }
     } else if (event.containsKey("dateToCheck")) {
-      val requestBuilder =
-        new RequestBuilderWithSigner(
-          config.capiPreviewRole,
-          Constants.awsRegion.toString
-        )
 
       val dateToCheck = event.get("dateToCheck").toString
       val d = LocalDate.parse(dateToCheck)

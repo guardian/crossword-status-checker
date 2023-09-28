@@ -123,6 +123,7 @@ class CrosswordDateCheckerTest extends AnyFlatSpec with Matchers {
   behavior of "checkNextNDays"
 
   it should "return a list for each of the N days requested" in {
+    val requestBuilder = new BasicRequestBuilder()
     val mockHttpServer = new MockWebServer()
     mockHttpServer.start()
     val baseUrl = mockHttpServer.url("").toString
@@ -145,24 +146,25 @@ class CrosswordDateCheckerTest extends AnyFlatSpec with Matchers {
 
     val one_days_statuses = CrosswordDateChecker.checkNextNDays(
       1
-    )(config)
+    )(config, requestBuilder)
 
     Await.result(one_days_statuses, 10.seconds).size mustBe 1
 
     val three_days_statuses = CrosswordDateChecker.checkNextNDays(
       3
-    )(config)
+    )(config, requestBuilder)
 
     Await.result(three_days_statuses, 10.seconds).size mustBe 3
 
     val nine_days_statuses = CrosswordDateChecker.checkNextNDays(
       9
-    )(config)
+    )(config, requestBuilder)
 
     Await.result(nine_days_statuses, 10.seconds).size mustBe 9
   }
 
   it should "return passing statuses if CAPI preview returns 200" in {
+    val requestBuilder = new BasicRequestBuilder()
     val mockHttpServer = new MockWebServer()
     mockHttpServer.start()
     val baseUrl = mockHttpServer.url("").toString
@@ -185,7 +187,7 @@ class CrosswordDateCheckerTest extends AnyFlatSpec with Matchers {
 
     val statuses = CrosswordDateChecker.checkNextNDays(
       3
-    )(config)
+    )(config, requestBuilder)
 
     Await.result(statuses, 10.seconds) mustBe List(
       List(
@@ -231,6 +233,7 @@ class CrosswordDateCheckerTest extends AnyFlatSpec with Matchers {
   }
 
   it should "return failing statuses if CAPI preview returns a non-200 response" in {
+    val requestBuilder = new BasicRequestBuilder()
     val mockHttpServer = new MockWebServer()
     mockHttpServer.start()
     val baseUrl = mockHttpServer.url("").toString
@@ -263,7 +266,7 @@ class CrosswordDateCheckerTest extends AnyFlatSpec with Matchers {
 
     val statuses = CrosswordDateChecker.checkNextNDays(
       2
-    )(config)
+    )(config, requestBuilder)
 
     Await.result(statuses, 10.seconds) mustBe List(
       List(

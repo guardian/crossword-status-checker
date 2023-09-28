@@ -42,17 +42,14 @@ object CrosswordDateChecker {
 
   def checkNextNDays(
       noDaysToCheck: Int
-  )(config: Config): Future[List[List[CrosswordReadyStatus]]] = {
+  )(
+      config: Config,
+      requestBuilder: RequestBuilder
+  ): Future[List[List[CrosswordReadyStatus]]] = {
     val daysToCheck = generateListOfNextNDays(noDaysToCheck)
     println(
       s"Checking the next $noDaysToCheck days for crosswords which aren't ready: ${daysToCheck.mkString(", ")}"
     )
-
-    val requestBuilder =
-      new RequestBuilderWithSigner(
-        config.capiPreviewRole,
-        Constants.awsRegion.toString
-      )
 
     // get statuses
     Future.sequence(
