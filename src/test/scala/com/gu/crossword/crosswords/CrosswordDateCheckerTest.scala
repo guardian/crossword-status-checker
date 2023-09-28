@@ -34,6 +34,8 @@ class CrosswordDateCheckerTest extends AnyFlatSpec with Matchers {
     alertTopic = ""
   )
 
+  behavior of "getAllCrosswordStatusesForDate"
+
   it should "return passing statuses if CAPI Preview calls return 200s" in {
     val requestBuilder = new BasicRequestBuilder()
     val mockHttpServer = new MockWebServer()
@@ -118,6 +120,188 @@ class CrosswordDateCheckerTest extends AnyFlatSpec with Matchers {
 
   }
 
+  behavior of "checkNextNDays"
 
+  it should "return a list for each of the N days requested" in {
+    val mockHttpServer = new MockWebServer()
+    mockHttpServer.start()
+    val baseUrl = mockHttpServer.url("").toString
+
+    val config = emptyConfig.copy(
+      crosswordMicroAppUrl = baseUrl,
+      capiUrl = baseUrl,
+      capiPreviewUrl = baseUrl,
+      flexUrl = baseUrl,
+      flexFindByPathEndpoint = baseUrl,
+      composerApiUrl = baseUrl,
+      composerFindByPathEndpoint = baseUrl
+    )
+
+    val dispatcher = new Dispatcher() {
+      def dispatch(request: RecordedRequest): MockResponse =
+        new MockResponse().setResponseCode(200)
+    }
+    mockHttpServer.setDispatcher(dispatcher)
+
+    val one_days_statuses = CrosswordDateChecker.checkNextNDays(
+      1
+    )(config)
+
+    Await.result(one_days_statuses, 10.seconds).size mustBe 1
+
+    val three_days_statuses = CrosswordDateChecker.checkNextNDays(
+      3
+    )(config)
+
+    Await.result(three_days_statuses, 10.seconds).size mustBe 3
+
+    val nine_days_statuses = CrosswordDateChecker.checkNextNDays(
+      9
+    )(config)
+
+    Await.result(nine_days_statuses, 10.seconds).size mustBe 9
+  }
+
+  it should "return passing statuses if CAPI preview returns 200" in {
+    val mockHttpServer = new MockWebServer()
+    mockHttpServer.start()
+    val baseUrl = mockHttpServer.url("").toString
+
+    val config = emptyConfig.copy(
+      crosswordMicroAppUrl = baseUrl,
+      capiUrl = baseUrl,
+      capiPreviewUrl = baseUrl,
+      flexUrl = baseUrl,
+      flexFindByPathEndpoint = baseUrl,
+      composerApiUrl = baseUrl,
+      composerFindByPathEndpoint = baseUrl
+    )
+
+    val dispatcher = new Dispatcher() {
+      def dispatch(request: RecordedRequest): MockResponse =
+        new MockResponse().setResponseCode(200)
+    }
+    mockHttpServer.setDispatcher(dispatcher)
+
+    val statuses = CrosswordDateChecker.checkNextNDays(
+      3
+    )(config)
+
+    Await.result(statuses, 10.seconds) mustBe List(
+      List(
+        CrosswordReadyStatus("quick", 16661, true, new LocalDate("2023-09-29")),
+        CrosswordReadyStatus(
+          "cryptic",
+          29188,
+          true,
+          new LocalDate("2023-09-29")
+        )
+      ),
+      List(
+        CrosswordReadyStatus("quick", 16662, true, new LocalDate("2023-09-30")),
+        CrosswordReadyStatus(
+          "prize",
+          29189,
+          true,
+          new LocalDate("2023-09-30")
+        ),
+        CrosswordReadyStatus(
+          "weekend",
+          664,
+          true,
+          new LocalDate("2023-09-30")
+        )
+      ),
+      List(
+        CrosswordReadyStatus(
+          "speedy",
+          1460,
+          true,
+          new LocalDate("2023-10-01")
+        ),
+        CrosswordReadyStatus(
+          "everyman",
+          4015,
+          true,
+          new LocalDate("2023-10-01")
+        )
+      )
+    )
+
+  }
+
+  it should "return failing statuses if CAPI preview returns a non-200 response" in {
+    val mockHttpServer = new MockWebServer()
+    mockHttpServer.start()
+    val baseUrl = mockHttpServer.url("").toString
+
+    val capiPreviewIdentifier = "CAPI_PREVIEW_REQUEST_IDENTIFIER"
+
+    val config = emptyConfig.copy(
+      crosswordMicroAppUrl = baseUrl,
+      capiUrl = baseUrl,
+      capiPreviewUrl = s"$baseUrl/$capiPreviewIdentifier",
+      flexUrl = baseUrl,
+      flexFindByPathEndpoint = baseUrl,
+      composerApiUrl = baseUrl,
+      composerFindByPathEndpoint = baseUrl
+    )
+
+    val dispatcher = new Dispatcher() {
+      def dispatch(request: RecordedRequest): MockResponse = {
+        request.getPath match {
+          case path
+              if path
+                .contains(capiPreviewIdentifier) && !path.contains("quick") =>
+            new MockResponse().setResponseCode(200)
+          case _ =>
+            new MockResponse().setResponseCode(404)
+        }
+      }
+    }
+    mockHttpServer.setDispatcher(dispatcher)
+
+    val statuses = CrosswordDateChecker.checkNextNDays(
+      2
+    )(config)
+
+    Await.result(statuses, 10.seconds) mustBe List(
+      List(
+        CrosswordReadyStatus(
+          "quick",
+          16661,
+          false,
+          new LocalDate("2023-09-29")
+        ),
+        CrosswordReadyStatus(
+          "cryptic",
+          29188,
+          true,
+          new LocalDate("2023-09-29")
+        )
+      ),
+      List(
+        CrosswordReadyStatus(
+          "quick",
+          16662,
+          false,
+          new LocalDate("2023-09-30")
+        ),
+        CrosswordReadyStatus(
+          "prize",
+          29189,
+          true,
+          new LocalDate("2023-09-30")
+        ),
+        CrosswordReadyStatus(
+          "weekend",
+          664,
+          true,
+          new LocalDate("2023-09-30")
+        )
+      )
+    )
+
+  }
 
 }
