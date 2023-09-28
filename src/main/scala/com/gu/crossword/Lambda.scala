@@ -61,29 +61,12 @@ class Lambda
         println(s"User requested $noDaysToCheck. Max: 10")
         "Can check a maximum of 10 days"
       } else {
-        val daysToCheck = generateListOfNextNDays(noDaysToCheck)
-        println(
-          s"Checking the next $noDaysToCheck days for crosswords which aren't ready: ${daysToCheck.mkString(", ")}"
-        )
+        val statuses = Await
+          .result(checkNextNDays(noDaysToCheck)(config), 10.seconds)
+          .flatten
 
-        val requestBuilder =
-          new RequestBuilderWithSigner(
-            config.capiPreviewRole,
-            Constants.awsRegion.toString
-          )
-
-        // get statuses
-        val statuses = Await.result(
-          Future.sequence(
-            daysToCheck.map(d =>
-              getAllCrosswordStatusesForDate(d)(config, requestBuilder)
-            )
-          ),
-          10 seconds
-        )
-
-        // alert
-        alertForBadCrosswords(statuses.flatten)(config)
+        // alert if any of the crosswords are not ready
+        alertForBadCrosswords(statuses)(config)
 
         s"checked $noDaysToCheck days"
       }
