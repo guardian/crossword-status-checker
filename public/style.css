@@ -1,3 +1,11 @@
+:root {
+    --sp-small: 6px;
+    --sp-base: 8px;
+    --sp-large: 16px;
+    --color-warning: hsl(346, 86%, 53%);
+    --color-warning-light: hsl(346, 65%, 90%);
+}
+
 body {
     max-width: 1000px;
     margin: 0 auto;
@@ -8,4 +16,33 @@ body {
     max-width: 100%;
     height: auto;
     display:block;
+}
+
+.admin-message {
+    padding: var(--sp-large) var(--sp-base) var(--sp-base) var(--sp-base);
+    border: 2px solid var(--color-warning);
+    display: flex;
+    gap: 1rem;
+    background-color: var(--color-warning-light);
+    margin: var(--sp-large) 0;
+}
+
+.admin-message p {
+    white-space: pre-wrap;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-bottom: var(--sp-small);
+}
+
+.admin-message h2 {
+    font-size: 1.5rem;
+    padding-bottom: var(--sp-base);
+    margin: 0;
+}
+
+.admin-message svg {
+    width: 3rem;
+    height: 3rem;
 }
