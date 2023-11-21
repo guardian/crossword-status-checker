@@ -1,5 +1,9 @@
-crossword-status-checker
+crossword-status-checker (deprecated)
 ========================
+
+>**Note**
+>This service has now been deprecated. Its functionality has been moved to the
+> [crosswordv2](https://github.com/guardian/crosswordv2) project.
 
 This is a Lambda function designed to make it easier to see what's gone wrong with a particular crossword. 
 It checks S3 buckets, the crossword API, CAPI and Flexible content for a crossword.
